@@ -1,2 +1,6 @@
 config.py
 key.env
+__pycache__/
+*.pyc
+*.pyo
+*.cpython*
