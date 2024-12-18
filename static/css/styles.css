@@ -1,0 +1,192 @@
+/* General Reset */
+body, h1, p, a {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    background-color: #1a1a1a; /* Dark Grey/Black Background */
+    color: #f8f8f8; /* Light text color for contrast */
+    font-family: Arial, sans-serif;
+    text-align: center;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Header Styling */
+h1 {
+    font-size: 3rem;
+    color: #dc143c; /* Deep Crimson Red */
+    text-shadow: 3px 3px 5px black;
+    margin-top: 2rem;
+}
+
+/* Main Content */
+main {
+    margin: 2rem;
+}
+
+p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+/* Button Styling */
+a {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #ffffff;
+    background-color: #dc143c; /* Deep Crimson Red */
+    border: 2px solid #b10f2e; /* Darker Crimson Border */
+    padding: 12px 24px;
+    border-radius: 8px;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+a:hover {
+    background-color: #b10f2e; /* Darker Crimson on hover */
+    color: #ffffff;
+    transform: scale(1.05);
+}
+
+/* Form Container */
+form {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    margin: 2rem auto;
+    max-width: 400px;
+}
+
+input, button {
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 10px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    background-color: #444;
+    color: #fff;
+    font-size: 1rem;
+}
+
+button {
+    background-color: #dc143c;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.4s ease;
+}
+
+button:hover {
+    background-color: #b10f2e;
+}
+
+/* General Reset */
+body, h1, p, div {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    background-color: #1a1a1a; /* Dark Grey/Black Background */
+    color: #f8f8f8; /* Light text color */
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Header Styling */
+header {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+header h1 {
+    font-size: 3rem;
+    color: #dc143c; /* Deep Crimson Red */
+    text-shadow: 3px 3px 5px black;
+}
+
+header p {
+    font-size: 1.2rem;
+    color: #ccc;
+    margin-top: 0.5rem;
+}
+
+/* Calendar Container */
+.calendar-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color: #2c2c2c; /* Darker Grey Background */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Calendar Header */
+.calendar-header {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #dc143c; /* Deep Crimson Red */
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* Calendar Grid */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 columns for 7 days */
+    gap: 5px; /* Space between cells */
+}
+
+/* Days of the Week Header */
+.calendar-header-day {
+    background-color: #dc143c;
+    color: #ffffff;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+/* Calendar Day Cells */
+.calendar-day {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    text-align: center;
+    padding: 10px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Highlight Current Day */
+.current-day {
+    background-color: #dc143c; /* Crimson for the current day */
+    color: #ffffff;
+    font-weight: bold;
+    border: 2px solid #b10f2e;
+    border-radius: 5px;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
+}
+
+/* Footer Styling */
+footer {
+    margin-top: 2rem;
+    text-align: center;
+    color: #aaa;
+    font-size: 0.9rem;
+}

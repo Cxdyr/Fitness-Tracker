@@ -3,25 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Friend</title>
+    <title>Fitness Friend - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>
-        Fitness Tracker
-    <h1>
+    <header>
+        <h1>Welcome to Fitness Friend</h1>
+        <p>Your ultimate fitness tracking companion</p>
+    </header>
+        <div class="calendar-container">
+            <div class="calendar-header">
+                {{ calendar_month_name[month] }} {{ year }}
+            </div>
+
+               <!-- Calendar Grid -->
+        <div class="calendar-grid">
+            <!-- Day Names -->
+            <div class="calendar-header-day">Mon</div>
+            <div class="calendar-header-day">Tue</div>
+            <div class="calendar-header-day">Wed</div>
+            <div class="calendar-header-day">Thu</div>
+            <div class="calendar-header-day">Fri</div>
+            <div class="calendar-header-day">Sat</div>
+            <div class="calendar-header-day">Sun</div>
+
+            <!-- Days of the Month -->
+            {% for week in cal %}
+                {% for day_number in week %}
+                    {% if day_number == 0 %}
+                        <div class="calendar-day"></div> <!-- Empty Days -->
+                    {% elif day_number == day %}
+                        <div class="calendar-day current-day">{{ day_number }}</div> <!-- Current Day Highlight -->
+                    {% else %}
+                        <div class="calendar-day">{{ day_number }}</div> <!-- Regular Day -->
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
 
     <main>
-        <p>
-            Welcome to Fitness Tracker!
-        </p>
-
-        <a href="{{ url_for('login')}}"> Login</a>
-        <a href="{{url_for('register')}}"> Register</a>
-        
+        <div class="form-container">
+            <p>Ready to get started? Log in or create an account to begin making your own workout plan and tracking your journey!</p>
+            <div class="buttons">
+                <a href="{{ url_for('login') }}" class="btn">Login</a>
+                <a href="{{ url_for('register') }}" class="btn">Register</a>
+            </div>
+        </div>
     </main>
 
     <footer>
-        <!-- Footer content -->
+        <p>&copy; 2024 Fitness Friend. All rights reserved.</p>
     </footer>
 </body>
 </html>

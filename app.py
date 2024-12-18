@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, request, flash
 from models import db, bcrypt, User
 from config import Config 
 from forms import LoginForm, RegisterForm
-
+from calendar_1 import generate_calendar, get_month_name
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -12,8 +12,15 @@ bcrypt.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
-
+    calendar_data = generate_calendar()
+    return render_template(
+        "index.html",
+        year=calendar_data["year"],
+        month=calendar_data["month"],
+        day=calendar_data["day"],
+        cal=calendar_data["calendar"],
+        calendar_month_name=get_month_name()
+    )
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
