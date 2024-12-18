@@ -58,7 +58,7 @@ class LiftTracker(db.Model):
     weight_used = db.Column(db.Float, nullable=False)
 
 class Recommendation(db.Model):
-    __tablename__ = 'recommendations'
+    __tablename__ = 'recommendation'
     id = db.Column(db.Integer, primary_key=True)
     lift_id = db.Column(db.Integer, db.ForeignKey('lifts.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
