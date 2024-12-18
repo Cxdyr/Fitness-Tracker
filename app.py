@@ -1,8 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
-from models import db, bcrypt, User
+from models import db, bcrypt, User, Lift
 from config import Config 
 from forms import LoginForm, RegisterForm
 from calendar_1 import generate_calendar, get_month_name
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -62,7 +63,37 @@ def tracker():
 def plan():
     return render_template('plan.html')
 
+# populating the lift table from this function - would usually be through mySQL import wizard with an excel sheet
+def populate_lifts():
+    predefined_lifts = [
+        {"name": "Bench Press", "sets": 3, "reps": 10},
+        {"name": "Squat", "sets": 4, "reps": 8},
+        {"name": "Deadlift", "sets": 3, "reps": 5},
+        {"name": "Overhead Press", "sets": 3, "reps": 8},
+        {"name": "Barbell Row", "sets": 3, "reps": 10},
+        {"name": "Pull-Ups", "sets": 3, "reps": 8},
+        {"name": "Push-Ups", "sets": 3, "reps": 12},
+        {"name": "Dumbbell Curl", "sets": 3, "reps": 10},
+        {"name": "Tricep Extension", "sets": 3, "reps": 12},
+        {"name": "Lunges", "sets": 3, "reps": 10},
+    ]
+
+    for lift in predefined_lifts:
+        # Check if the lift already exists
+        existing_lift = Lift.query.filter_by(name=lift["name"]).first()
+        if not existing_lift:
+            new_lift = Lift(
+                name=lift["name"],
+                sets=lift["sets"],
+                reps=lift["reps"],
+                initial_weight=None
+            )
+            db.session.add(new_lift)
+    db.session.commit()
+    print("Lifts table populated successfully!")
+
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all()
+        db.create_all()  # Recreates tables with updated schema
+        populate_lifts()
     app.run(debug=True, host='0.0.0.0', port=5000)
