@@ -5,7 +5,8 @@ Create and Track your Lifts with Fitness Friend
 1. [Overview](#overview)
 2. [Functional Requirements](https://docs.google.com/document/d/1srF8oGTNmqTlCrI0lN3KUiff2r3__MvGwCiBQCDxQos/edit?usp=sharing)
 3. [Database Design](https://docs.google.com/document/d/1lxbbgL2HLg1uI_DE7TtSzCqkJ7iwn5i1IMK5zQ28soQ/edit?usp=sharing)
-4. [WBS](https://docs.google.com/document/d/1ez9xkvQ2hNxDfMBgt6n_tNCwkrcmJvW0id0xeI5v5Yc/edit?usp=sharing)
+4. [Plan,Lift,Tracker Functionality](https://docs.google.com/document/d/17s8uYePlKkFkSQraUYe7-mxFrkQ3v9x8L7MCJXYzAN4/edit?usp=sharing)
+5. [WBS](https://docs.google.com/document/d/1ez9xkvQ2hNxDfMBgt6n_tNCwkrcmJvW0id0xeI5v5Yc/edit?usp=sharing)
 
 ---
 
@@ -17,7 +18,6 @@ Create and Track your Lifts with Fitness Friend
 ---
 
 ## **Features**
-Highlight the core features of your web app:
 - User registration and login system.
 - Calendar integration for tracking activity.
 - User creation of workout plans (day split amount, 1-7, each day in split's name, each day's lift names - with set amount, rep amount, and weight amount)
