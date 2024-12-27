@@ -21,3 +21,9 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+class PlanForm(FlaskForm):
+    plan_name = StringField('Plan Name', validators=[DataRequired()])
+    plan_type = StringField('Plan Type')
+    plan_duration = StringField('Plan Duration')
+    submit = SubmitField('Create Plan')

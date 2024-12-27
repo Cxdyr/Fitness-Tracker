@@ -2,19 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> FF Dashboard</title>
+    <title>FF Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header>
-        <!-- Navigation or site header -->
+        <h1>My FF Dashboard</h1>
     </header>
 
     <main>
-        <p>
-            hello 
-        </p>
+        <div class="buttons">
+            <!-- Link to create a plan -->
+            <a href="{{ url_for('plan') }}" class="btn">Create Plan</a>
+
+            <!-- Link to view existing plans -->
+            <a href="{{ url_for('my_plans') }}" class="btn">View Plans</a>
+
+            <!-- Link to track a plan -->
+            <a href="{{ url_for('tracker') }}" class="btn">Track a Plan</a>
+        </div>
+
     </main>
 
     <footer>

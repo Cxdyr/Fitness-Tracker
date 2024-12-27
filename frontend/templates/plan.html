@@ -2,23 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FF Plan Maker</title>
+    <title>Create a Plan</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header>
-        <!-- Navigation or site header -->
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        </nav>
     </header>
 
     <main>
-        <p>
-            hello 
-        </p>
+        <h1>Create a New Plan</h1>
+        <form method="POST" action="{{ url_for('plan') }}">
+            <label for="plan_name">Plan Name:</label><br>
+            <input type="text" id="plan_name" name="plan_name" required><br><br>
+
+            <label for="plan_type">Plan Type:</label><br>
+            <input type="text" id="plan_type" name="plan_type"><br><br>
+
+            <label for="plan_duration">Plan Duration:</label><br>
+            <input type="text" id="plan_duration" name="plan_duration"><br><br>
+
+            <hr>
+            <p>Choose up to 8 exercises.</p>
+            {% for i in range(1, 9) %}
+                <fieldset style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+                    <legend>Slot {{ i }}</legend>
+                    <label for="exercise_{{ i }}">Exercise (lift_id):</label>
+                    <select name="exercise_{{ i }}" id="exercise_{{ i }}">
+                        <option value="">(None)</option>
+                        {% for lift in lifts %}
+                            <option value="{{ lift.id }}">{{ lift.name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <br><br>
+                    <label for="sets_{{ i }}">Sets:</label>
+                    <input type="number" min="1" name="sets_{{ i }}" id="sets_{{ i }}" value="3">
+
+                    <label for="reps_{{ i }}">Reps:</label>
+                    <input type="number" min="1" name="reps_{{ i }}" id="reps_{{ i }}" value="10">
+                </fieldset>
+                <br>
+            {% endfor %}
+
+            <button type="submit">Create Plan</button>
+        </form>
     </main>
-    
-    <footer>
-        <p>&copy; 2024 Fitness Friend. All rights reserved.</p>
-    </footer>
 </body>
 </html>
