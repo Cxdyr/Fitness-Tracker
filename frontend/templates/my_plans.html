@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Plans</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
@@ -18,25 +19,25 @@
         <h1>My Plans</h1>
 
         {% if plans %}
-            <ul>
+            <p>
                 {% for plan in plans %}
-                    <li>
+                    <p>
                         <strong>{{ plan.plan_name }}</strong> 
-                        (Type: {{ plan.plan_type or 'N/A' }}, Duration: {{ plan.plan_duration or 'N/A' }})
+                        (Type: {{ plan.plan_type or 'N/A' }}, Duration: {{ plan.plan_duration or 'N/A' }} mins)
                         <br>
-                        <!-- Display Lifts for the Plan -->
+                        <!-- Display lifts for the plan -->
                         {% if plan.lifts %}
-                            <ul>
+                            <p>
                                 {% for lift in plan.lifts %}
-                                    <li>{{ lift.lift_name }} - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</li>
+                                    <p>{{ lift.lift_name }} - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</p>
                                 {% endfor %}
-                            </ul>
+                                    </p>
                         {% else %}
                             <p>No exercises found for this plan.</p>
                         {% endif %}
-                    </li>
+                                </p>
                 {% endfor %}
-            </ul>
+                            </p>
         {% else %}
             <p>You have not created any plans yet.</p>
         {% endif %}

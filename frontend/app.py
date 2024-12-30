@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 from flask import Flask, render_template, redirect, url_for, flash, request
@@ -7,15 +8,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from common.forms import LoginForm, RegisterForm
 from config import Config 
 
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
 # Backend API base URL
 BACKEND_URL = "http://127.0.0.1:5001/api"
 
-# -------------------------------------------------------------------
-# Routes
-# -------------------------------------------------------------------
+
+#----------ROUTES-----------
 
 @app.route('/')
 def index():
@@ -28,6 +29,7 @@ def index():
         cal=calendar_data["calendar"],
         calendar_month_name=get_month_name()
     )
+
 
 @app.route('/dashboard')
 def dashboard():
@@ -158,11 +160,12 @@ def my_plans():
     return render_template('my_plans.html', plans=plans)
 
 
-
-
 @app.route('/tracker', methods=['GET', 'POST'])
 def tracker():
-    user_id = 1  # or from session
+    """
+    Allows users to track their workout performance for each lift in a selected plan.
+    """
+    user_id = 1  # Replaced with session user_id in production 
 
     if request.method == 'POST':
         plan_id = request.form.get('plan_id')
@@ -170,35 +173,58 @@ def tracker():
             flash("No plan selected to track.", "danger")
             return redirect(url_for('tracker'))
 
-        total_lifts = int(request.form.get('total_lifts', 0))
-        lifts_data = []
-        for i in range(total_lifts):
-            plan_lift_id_str = request.form.get(f"plan_lift_id_{i}")
-            if plan_lift_id_str:
-                actual_sets_str = request.form.get(f"actual_sets_{i}", '0')
-                actual_reps_str = request.form.get(f"actual_reps_{i}", '0')
-                actual_weight_str = request.form.get(f"actual_weight_{i}", '0')
-                lifts_data.append({
-                    "plan_lift_id": int(plan_lift_id_str),
-                    "actual_sets": int(actual_sets_str),
-                    "actual_reps": int(actual_reps_str),
-                    "actual_weight": float(actual_weight_str)
-                })
+        # Fetch the selected plan's details
+        plan_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+        if plan_resp.status_code != 200:
+            flash("Could not load plan details from backend.", "danger")
+            return redirect(url_for('tracker'))
 
-        payload = {
-            "user_id": user_id,
-            "lifts": lifts_data
-        }
-        track_url = f"{BACKEND_URL}/plans/{plan_id}/track"
-        r = requests.post(track_url, json=payload)
-        if r.status_code == 200:
+        plans = plan_resp.json()
+        selected_plan = next((plan for plan in plans if str(plan['plan_id']) == plan_id), None)
+        if not selected_plan:
+            flash("Selected plan not found.", "danger")
+            return redirect(url_for('tracker'))
+
+        # Iterate over each lift in the selected plan and send tracking data
+        tracking_success = True
+        for lift in selected_plan['lifts']:
+            lift_id = lift['lift_id']
+            reps_performed_str = request.form.get(f"reps_performed_{lift_id}", '0')
+            weight_performed_str = request.form.get(f"weight_performed_{lift_id}", '0')
+            reps_in_reserve_str = request.form.get(f"reps_in_reserve_{lift_id}", '0')
+
+            try:
+                reps_performed = int(reps_performed_str)
+                weight_performed = float(weight_performed_str)
+                reps_in_reserve = int(reps_in_reserve_str)
+            except ValueError:
+                flash(f"Invalid input for lift '{lift['lift_name']}'. Please enter numeric values.", "danger")
+                tracking_success = False
+                continue
+
+            # Send POST request to track performance
+            track_url = f"{BACKEND_URL}/plans/{plan_id}/lifts/{lift_id}/track"
+            payload = {
+                "reps_performed": reps_performed,
+                "weight_performed": weight_performed,
+                "reps_in_reserve": reps_in_reserve
+            }
+            response = requests.post(track_url, json=payload)
+
+            if response.status_code != 201:
+                error_message = response.json().get('error', 'Error tracking performance.')
+                flash(f"Failed to track lift '{lift['lift_name']}': {error_message}", "danger")
+                tracking_success = False
+
+        if tracking_success:
             flash("Workout logged successfully!", "success")
         else:
-            flash("Error logging workout.", "danger")
+            flash("Some lifts could not be tracked. Please review the errors above.", "danger")
+
         return redirect(url_for('tracker'))
 
     else:
-        plan_id = request.args.get('plan_id')
+        # GET request: render the tracking form
         plans_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
         if plans_resp.status_code == 200:
             user_plans = plans_resp.json()
@@ -207,12 +233,34 @@ def tracker():
             flash("Could not load user plans.", "danger")
 
         selected_plan = None
+        plan_id = request.args.get('plan_id')
         if plan_id:
-            detail_resp = requests.get(f"{BACKEND_URL}/plans/{plan_id}")
-            if detail_resp.status_code == 200:
-                selected_plan = detail_resp.json()
+            # Fetch detailed plan information if plan_id is provided
+            plan_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+            if plan_resp.status_code == 200:
+                plans = plan_resp.json()
+                selected_plan = next((plan for plan in plans if str(plan['plan_id']) == plan_id), None)
+            else:
+                flash("Could not load plan details.", "danger")
 
         return render_template('tracker.html', user_plans=user_plans, selected_plan=selected_plan)
+
+@app.route('/tracking_history')
+def tracking_history():
+    """
+    Displays all tracking data for the user.
+    """
+    user_id = 1  #replace
+    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings")
+
+    if resp.status_code == 200:
+        trackings = resp.json()
+    else:
+        trackings = []
+        flash("Could not load tracking data from backend.", "danger")
+
+    return render_template('tracking_history.html', trackings=trackings)
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

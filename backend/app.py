@@ -5,7 +5,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import Config
-from models import db, bcrypt, User, Lift, Plan, PlanLift
+from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -47,7 +47,7 @@ def populate_lifts():
     db.session.commit()
 
 
-# -------------- BASIC AUTH ENDPOINTS (REGISTER/LOGIN) --------------
+# ----- BASIC AUTH ENDPOINTS (REGISTER/LOGIN) --------
 
 @app.route('/api/register', methods=['POST'])
 def api_register():
@@ -98,6 +98,7 @@ def api_login():
     return jsonify({"message": "Login successful", "user": {"id": user.id, "username": user.username}}), 200
 
 
+# ----- PLAN CREATION AND VIEWING ENDPOINTS  --------
 
 @app.route('/api/plans', methods=['POST'])
 def create_plan():
@@ -151,7 +152,7 @@ def create_plan():
 @app.route('/api/users/<int:user_id>/plans', methods=['GET'])
 def get_user_plans(user_id):
     """
-    Fetch all plans for a specific user.
+    Get all plans for a specific user.
     """
     try:
         user = db.session.get(User, user_id)
@@ -201,12 +202,136 @@ def get_user_plans(user_id):
 @app.route('/api/lifts', methods=['GET'])
 def get_lifts():
     """
-    Fetch all predefined lifts.
+    Get all predefined lifts.
     """
     lifts = Lift.query.all()
     lifts_data = [{"id": lift.id, "name": lift.name} for lift in lifts]
     return jsonify(lifts_data), 200
 
+
+# -----TRACKING ENDPOINTS  --------
+
+@app.route('/api/plans/<int:plan_id>/lifts/<int:lift_id>/track', methods=['POST'])
+def track_lift_performance(plan_id, lift_id):
+    """
+    Track the performance of a specific lift in a plan.
+    """
+    try:
+        # Validate the existence of the plan and lift
+        plan = db.session.get(Plan, plan_id)
+        if not plan:
+            return jsonify({"error": "Plan not found"}), 404
+
+        plan_lift = PlanLift.query.filter_by(plan_id=plan_id, lift_id=lift_id).first()
+        if not plan_lift:
+            return jsonify({"error": "Lift not found in the specified plan"}), 404
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No input data provided"}), 400
+
+        reps_performed = data.get('reps_performed')
+        weight_performed = data.get('weight_performed')
+        reps_in_reserve = data.get('reps_in_reserve')
+
+        # Validate input 
+        if reps_performed is None or weight_performed is None or reps_in_reserve is None:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        if not isinstance(reps_performed, int) or not isinstance(weight_performed, (int, float)) or not isinstance(reps_in_reserve, int):
+            return jsonify({"error": "Invalid data types"}), 400
+
+        # Create a new LiftPerformance record
+        performance = LiftPerformance(
+            plan_lift_id=plan_lift.id,
+            reps_performed=reps_performed,
+            weight_performed=weight_performed,
+            reps_in_reserve=reps_in_reserve
+        )
+
+        db.session.add(performance)
+        db.session.commit()
+
+        return jsonify({
+            "message": "Lift performance tracked successfully",
+            "performance_id": performance.id
+        }), 201
+
+    except Exception as e:
+        app.logger.error(f"Error tracking lift performance: {str(e)}")
+        return jsonify({"error": "Server error"}), 500
+
+
+
+@app.route('/api/plans/<int:plan_id>/lifts/<int:lift_id>/track', methods=['GET'])
+def get_lift_performance(plan_id, lift_id):
+    """
+    Retrieve tracking data for a specific lift in a plan.
+    """
+    try:
+        # Validate the existence of the plan and lift
+        plan = Plan.query.get(plan_id)
+        if not plan:
+            return jsonify({"error": "Plan not found"}), 404
+
+        plan_lift = PlanLift.query.filter_by(plan_id=plan_id, lift_id=lift_id).first()
+        if not plan_lift:
+            return jsonify({"error": "Lift not found in the specified plan"}), 404
+
+        performances = LiftPerformance.query.filter_by(plan_lift_id=plan_lift.id).order_by(LiftPerformance.date.desc()).all()
+
+        performances_data = []
+        for perf in performances:
+            performances_data.append({
+                "performance_id": perf.id,
+                "date": perf.date.isoformat(),
+                "reps_performed": perf.reps_performed,
+                "weight_performed": perf.weight_performed,
+                "reps_in_reserve": perf.reps_in_reserve
+            })
+
+        return jsonify(performances_data), 200
+
+    except Exception as e:
+        app.logger.error(f"Error retrieving lift performance: {str(e)}")
+        return jsonify({"error": "Server error"}), 500
+    
+
+@app.route('/api/users/<int:user_id>/trackings', methods=['GET'])
+def get_user_trackings(user_id):
+    """
+    Retrieve all tracking data for a specific user.
+    """
+    try:
+        user = db.session.get(User, user_id)
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        plans = Plan.query.filter_by(user_id=user_id).all()
+        if not plans:
+            return jsonify([]), 200
+
+        trackings = []
+        for plan in plans:
+            for plan_lift in plan.plan_lifts:
+                for perf in plan_lift.performances:
+                    trackings.append({
+                        "plan_id": plan.id,
+                        "plan_name": plan.plan_name,
+                        "lift_id": plan_lift.lift_id,
+                        "lift_name": plan_lift.lift.name,
+                        "performance_id": perf.id,
+                        "date": perf.date.date().isoformat(),
+                        "reps_performed": perf.reps_performed,
+                        "weight_performed": perf.weight_performed,
+                        "reps_in_reserve": perf.reps_in_reserve
+                    })
+
+        return jsonify(trackings), 200
+
+    except Exception as e:
+        app.logger.error(f"Error retrieving user trackings: {str(e)}")
+        return jsonify({"error": "Server error"}), 500
 
 
 if __name__ == "__main__":

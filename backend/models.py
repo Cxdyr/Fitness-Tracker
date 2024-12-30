@@ -49,3 +49,15 @@ class PlanLift(db.Model):
     sets = db.Column(db.Integer, nullable=True, default=3)
     reps = db.Column(db.Integer, nullable=True, default=10)
     weight_lifted = db.Column(db.Float, nullable=True)
+    lift = db.relationship('Lift', backref='plan_lifts') 
+
+
+class LiftPerformance(db.Model):
+    __tablename__ = 'lift_performances'
+    id = db.Column(db.Integer, primary_key=True)
+    plan_lift_id = db.Column(db.Integer, db.ForeignKey('plan_lifts.id'), nullable=False)
+    date = db.Column(db.DateTime, server_default=func.now(), nullable=False)
+    reps_performed = db.Column(db.Integer, nullable=False)
+    weight_performed = db.Column(db.Float, nullable=False)
+    reps_in_reserve = db.Column(db.Integer, nullable=False)
+    plan_lift = db.relationship('PlanLift', backref=db.backref('performances', lazy=True))

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Tracking History</h1>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-messages">
+              {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% if trackings %}
+            {% set grouped_trackings = trackings | groupby('date') %}
+            {% for date, items in grouped_trackings %}
+                <div class="tracking-date">
+                    <h2><span class="formatted-date" data-date="{{ date }}">{{ date }}</span></h2>
+                </div>
+                <div class="tracking-entries">
+                    {% for tracking in items %}
+                        <div class="tracking-card">
+                            <h3 class="plan-name">{{ tracking.plan_name }}</h3>
+                            <h4 class="lift-name">{{ tracking.lift_name }}</h4>
+                            <p><strong>Reps Performed:</strong> {{ tracking.reps_performed }}</p>
+                            <p><strong>Weight Performed:</strong> {{ tracking.weight_performed }} kg</p>
+                            <p><strong>Reps in Reserve:</strong> {{ tracking.reps_in_reserve }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No tracking data available.</p>
+        {% endif %}
+
+        <a href="{{ url_for('tracker') }}" class="back-button">Back to Tracker</a>
+    </div>
+
+</body>
+</html>

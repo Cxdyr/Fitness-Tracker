@@ -2,86 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Track a Plan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header>
+        <h1>Workout Tracker</h1>
         <nav>
             <a href="{{ url_for('dashboard') }}" class="btn">Dashboard</a>
             <a href="{{ url_for('my_plans') }}" class="btn">My Plans</a>
-            <a href="{{ url_for('tracker') }}" class="btn">Tracker</a>
+            <a href="{{ url_for('tracking_history') }}">Tracking History</a>
         </nav>
     </header>
 
     <main>
-        <h1>Track a Plan</h1>
 
-        <!-- Plan Selection Dropdown -->
-        <form method="GET" action="{{ url_for('tracker') }}">
-            <label for="plan_id">Choose a Plan to Track:</label>
-            <select name="plan_id" id="plan_id" onchange="this.form.submit()">
-                <option value="">-- Select Plan --</option>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                <li class="alert alert-{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+    
+        <!-- Plan selection form -->
+        <form method="get" action="{{ url_for('tracker') }}">
+            <label for="plan_id">Select a Workout to Track:</label>
+            <select name="plan_id" id="plan_id" required>
+                <option value="">--Select Workout--</option>
                 {% for plan in user_plans %}
-                    <option value="{{ plan.plan_id }}"
-                        {% if selected_plan and selected_plan.plan_id == plan.plan_id %}selected{% endif %}
-                    >
-                        {{ plan.plan_name }} ({{ plan.plan_type or 'N/A' }})
+                    <option value="{{ plan.plan_id }}" {% if selected_plan and plan.plan_id == selected_plan.plan_id %}selected{% endif %}>
+                        {{ plan.plan_name }}
                     </option>
                 {% endfor %}
             </select>
+            <button type="submit">Select</button>
         </form>
-
-        <hr>
-
+    
         {% if selected_plan %}
-            <h2>Plan: {{ selected_plan.plan_name }}</h2>
-            <p>Type: {{ selected_plan.plan_type or 'N/A' }}, Duration: {{ selected_plan.plan_duration or 'N/A' }}</p>
-
-            <form method="POST" action="{{ url_for('tracker') }}">
-                <!-- Hidden fields to keep track of plan_id and total lifts -->
+            <h2>Track: {{ selected_plan.plan_name }}</h2>
+            <form method="post" action="{{ url_for('tracker') }}">
                 <input type="hidden" name="plan_id" value="{{ selected_plan.plan_id }}">
-                <input type="hidden" name="total_lifts" value="{{ selected_plan.lifts | length }}">
-
-                <table border="1" cellpadding="5" cellspacing="0">
+                <table>
                     <thead>
                         <tr>
-                            <th>Exercise</th>
-                            <th>Planned Sets</th>
-                            <th>Planned Reps</th>
-                            <th>Actual Sets</th>
-                            <th>Actual Reps</th>
-                            <th>Actual Weight</th>
+                            <th>Lift</th>
+                            <th>Reps Performed</th>
+                            <th>Weight Performed (kg)</th>
+                            <th>Reps in Reserve</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for lift in selected_plan.lifts %}
                             <tr>
                                 <td>{{ lift.lift_name }}</td>
-                                <td>{{ lift.sets }}</td>
-                                <td>{{ lift.reps }}</td>
-
-                                <!-- loop.index0 for 0-based indexing -->
-                                <input type="hidden" name="plan_lift_id_{{ loop.index0 }}" value="{{ lift.lift_id }}">
-
-                                <td><input type="number" name="actual_sets_{{ loop.index0 }}" min="0"></td>
-                                <td><input type="number" name="actual_reps_{{ loop.index0 }}" min="0"></td>
-                                <td><input type="number" step="0.1" name="actual_weight_{{ loop.index0 }}" min="0"></td>
+                                <td>
+                                    <input type="number" name="reps_performed_{{ lift.lift_id }}" min="0" required>
+                                </td>
+                                <td>
+                                    <input type="number" step="0.1" name="weight_performed_{{ lift.lift_id }}" min="0" required>
+                                </td>
+                                <td>
+                                    <input type="number" name="reps_in_reserve_{{ lift.lift_id }}" min="0" required>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-
-                <br>
-                <button type="submit" class="btn">Log Workout</button>
+                <button type="submit">Submit Tracking</button>
             </form>
-        {% else %}
-            <p>Please select a plan to track.</p>
         {% endif %}
-    </main>
+    
 
-    <footer>
-        <p>&copy; 2024 Fitness Friend. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+    </body>
+    </html>
