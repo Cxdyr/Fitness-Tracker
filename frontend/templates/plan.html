@@ -9,12 +9,11 @@
 <body>
     <header>
         <nav>
-            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+           <h1> Create Workout </h1>
         </nav>
     </header>
 
     <main>
-        <h1>Create a New Plan</h1>
         <form method="POST" action="{{ url_for('plan') }}">
             <label for="plan_name">Plan Name:</label><br>
             <input type="text" id="plan_name" name="plan_name" required><br><br>

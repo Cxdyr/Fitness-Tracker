@@ -9,6 +9,7 @@
 <body>
     <header>
         <nav>
+            <h1> My Plans</h1>
             <a href="{{ url_for('dashboard') }}" class="btn">Dashboard</a>
             <a href="{{ url_for('my_plans') }}" class="btn">My Plans</a>
             <a href="{{ url_for('tracker') }}" class="btn">Tracker</a>
@@ -16,12 +17,10 @@
     </header>
 
     <main>
-        <h1>My Plans</h1>
 
         {% if plans %}
             <p>
                 {% for plan in plans %}
-                    <p>
                         <strong>{{ plan.plan_name }}</strong> 
                         (Type: {{ plan.plan_type or 'N/A' }}, Duration: {{ plan.plan_duration or 'N/A' }} mins)
                         <br>
@@ -29,6 +28,8 @@
                         {% if plan.lifts %}
                             <p>
                                 {% for lift in plan.lifts %}
+                                <div class="lifts">
+
                                     <p>{{ lift.lift_name }} - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</p>
                                 {% endfor %}
                                     </p>
