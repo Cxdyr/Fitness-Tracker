@@ -3,6 +3,9 @@ from flask_bcrypt import Bcrypt
 from flask import Flask, jsonify, request
 import sys
 import os
+
+from numpy import extract
+from sqlalchemy import func
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import Config
 from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
@@ -82,7 +85,38 @@ def populate_lifts():
             db.session.add(new_lift)
     db.session.commit()
 
+# End point for getting user tracked dates for calander display on dashboard
+@app.route('/api/tracked-dates', methods=['GET'])
+def get_tracked_dates_api():
+    try:
+        user_id = request.args.get('user_id', type=int)
+        year = request.args.get('year', type=int)
+        month = request.args.get('month', type=int)
 
+        if not user_id:
+            return jsonify({"error": "User ID is required"}), 400
+        if not year or not month:
+            return jsonify({"error": "Year and Month are required"}), 400
+
+        tracked_dates = db.session.query(LiftPerformance.date).join(
+            PlanLift, LiftPerformance.plan_lift_id == PlanLift.id
+        ).join(
+            Plan, PlanLift.plan_id == Plan.id
+        ).filter(
+            Plan.user_id == user_id,  # Filter by user_id
+            func.extract('year', LiftPerformance.date) == year,  
+            func.extract('month', LiftPerformance.date) == month 
+        ).distinct().all()  # Use distinct to remove duplicates
+
+        unique_dates = set(date[0].date() for date in tracked_dates)  #Get unique dates
+        tracked_dates_list = [date.strftime("%Y-%m-%d") for date in sorted(unique_dates)]  
+        return jsonify({"tracked_dates": tracked_dates_list}), 200
+
+    except Exception as e:
+        print(f"Error in /tracked-dates API: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+    
 # ----- BASIC AUTH ENDPOINTS (REGISTER/LOGIN) --------
 
 @app.route('/api/register', methods=['POST'])
@@ -120,18 +154,27 @@ def api_register():
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
-    data = request.get_json()
-    if not data or 'username' not in data or 'password' not in data:
-        return jsonify({"error": "Invalid data"}), 400
+    try:
+        data = request.get_json()
+        if not data or not data.get('username') or not data.get('password'):
+            return jsonify({"error": "Username and password are required"}), 400
 
-    user = User.query.filter_by(username=data['username']).first()
-    if not user:
-        return jsonify({"error": "Invalid username or password"}), 401
+        user = User.query.filter_by(username=data['username']).first()
+        if not user or not bcrypt.check_password_hash(user.password_hash, data['password']):
+            return jsonify({"error": "Invalid username or password"}), 401
 
-    if not bcrypt.check_password_hash(user.password_hash, data['password']):
-        return jsonify({"error": "Invalid username or password"}), 401
+        return jsonify({
+            "message": "Login successful",
+            "user": {
+                "id": user.id,
+                "username": user.username
+            }
+        }), 200
 
-    return jsonify({"message": "Login successful", "user": {"id": user.id, "username": user.username}}), 200
+    except Exception as e:
+        app.logger.error(f"Error in /api/login: {str(e)}")
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
 
 
 # ----- PLAN CREATION AND VIEWING ENDPOINTS  --------

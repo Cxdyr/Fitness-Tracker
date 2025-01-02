@@ -2,7 +2,6 @@ import calendar
 from calendar import month_name
 from datetime import datetime
 
-
 def generate_calendar():
     """
     Generate the calendar for the current month with year and current day.
@@ -28,3 +27,26 @@ def generate_calendar():
 
 def get_month_name():
     return month_name
+
+import calendar
+from datetime import datetime
+
+def generate_dashboard_calendar(year=None, month=None):
+    """
+    Generate the calendar for the specified month and year.
+    Returns:
+        - year: specified year
+        - month: specified month
+        - calendar: list of weeks for the month
+    """
+    now = datetime.now()
+    year = year or now.year
+    month = month or now.month
+
+    cal = calendar.monthcalendar(year, month)
+
+    return {
+        "year": year,
+        "month": month,
+        "calendar": cal,
+    }

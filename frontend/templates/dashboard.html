@@ -2,34 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FF Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Friend - Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <header>
-     <h1> Fitness Friend Dashboard</h1></a>
+        <h1>Your Fitness Dashboard</h1>
+        <p>Track your progress and stay motivated!</p>
     </header>
 
-    <main>
-        <div class="buttons">
-            <!-- Link to create a plan -->
-            <a href="{{ url_for('plan') }}" class="btn">Create Plan</a>
-
-            <!-- Link to view existing plans -->
-            <a href="{{ url_for('my_plans') }}" class="btn">View Plans</a>
-
-            <!-- Link to track a plan -->
-            <a href="{{ url_for('tracker') }}" class="btn">Track a Plan</a>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            {{ calendar_month_name[month] }} {{ year }}
         </div>
 
-        <!-- Place holder for embeded youtube video explaining how the App works if the user has not tracked a lift yet (IE new users)-->
+        <div class="calendar-grid">
+            <!-- Day Names -->
+            <div class="calendar-header-day">Mon</div>
+            <div class="calendar-header-day">Tue</div>
+            <div class="calendar-header-day">Wed</div>
+            <div class="calendar-header-day">Thu</div>
+            <div class="calendar-header-day">Fri</div>
+            <div class="calendar-header-day">Sat</div>
+            <div class="calendar-header-day">Sun</div>
+        
+            <!-- Days of the Month -->
+            {% for week in cal %}
+                {% for day_number in week %}
+                    {% if day_number == 0 %}
+                        <div class="calendar-day"></div> <!-- Empty Days -->
+                    {% elif day_number in tracked_days %}
+                        <div class="calendar-day tracked-day">{{ day_number }}</div> <!-- Tracked Day Highlight -->
+                    {% else %}
+                        <div class="calendar-day">{{ day_number }}</div> <!-- Regular Day -->
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </div>        
+    </div>
 
-        <!-- Place holder for Calander highlighting the days tracked by user, shown for everyone who has at least tracked 1 lift-->
+    <div class="buttons">
+        <!-- Link to create a plan -->
+        <a href="{{ url_for('plan') }}" class="btn">Create Plan</a>
 
-    </main>
+        <!-- Link to view existing plans -->
+        <a href="{{ url_for('my_plans') }}" class="btn">View Plans</a>
+
+        <!-- Link to track a plan -->
+        <a href="{{ url_for('tracker') }}" class="btn">Track a Plan</a>
+    </div>
+
 
     <footer>
-        <p>&copy; 2024 Fitness Friend - Cody Rabie. All rights reserved.</p>
+        <p>&copy; 2024 Fitness Friend. All rights reserved.</p>
     </footer>
 </body>
 </html>

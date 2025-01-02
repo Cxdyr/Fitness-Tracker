@@ -175,6 +175,24 @@ a:hover {
     transform: scale(1.05);
 }
 
+.calendar-day {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #000;
+    border-radius: 4px;
+}
+
+.calendar-day.tracked-day {
+    background-color: #4CAF50; /* Green for tracked days */
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+}
+
+
+
 /* Form Container */
 form {
     background-color: #2c2c2c;

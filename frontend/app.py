@@ -1,9 +1,9 @@
 from datetime import datetime
 import os
 import sys
-from flask import Flask, render_template, redirect, url_for, flash, request
+from flask import Flask, render_template, redirect, session, url_for, flash, request
 import requests
-from calendar_creation import generate_calendar, get_month_name
+from calendar_creation import generate_calendar, get_month_name, generate_dashboard_calendar
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from common.forms import LoginForm, RegisterForm
 from config import Config 
@@ -21,7 +21,7 @@ BACKEND_URL = "http://127.0.0.1:5001/api"
 
 @app.route('/')
 def index():
-    calendar_data = generate_calendar() #calendar display - gathering data
+    calendar_data = generate_calendar() #calendar display - gathering data, this calander is for general guests displaying the current day
     return render_template(
         "index.html",
         year=calendar_data["year"],
@@ -34,7 +34,32 @@ def index():
 
 @app.route('/dashboard')
 def dashboard():
-    return render_template("dashboard.html")
+    user_id = session.get('user_id')
+    now = datetime.now()
+    year, month = now.year, now.month
+
+    try:
+        # Call the backend API to get tracked dates
+        response = requests.get(f"{BACKEND_URL}/tracked-dates", params={"user_id": user_id, "year": year, "month": month})
+        response.raise_for_status()  # Raise an error for non-200 responses
+        tracked_dates = response.json().get("tracked_dates", [])
+        tracked_days = [datetime.strptime(date, "%Y-%m-%d").day for date in tracked_dates]  # Extract day numbers
+    except Exception as e:
+        print(f"Error fetching tracked dates: {str(e)}")
+        flash("Could not load tracked lift dates from the backend.", "danger")
+        tracked_days = []
+
+    # Generate calendar for the current month
+    calendar_data = generate_dashboard_calendar(year=year, month=month)
+
+    return render_template(
+        "dashboard.html",
+        year=calendar_data["year"],
+        month=calendar_data["month"],
+        cal=calendar_data["calendar"],
+        calendar_month_name=get_month_name(),
+        tracked_days=tracked_days
+    )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -47,12 +72,25 @@ def login():
         response = requests.post(f"{BACKEND_URL}/login", json=login_data)
 
         if response.status_code == 200:
+            # Extract user_id from the API response
+            user = response.json().get("user", {})
+            session["user_id"] = user.get("id")
             flash("Login successful!", "success")
             return redirect(url_for('dashboard'))
         else:
-            error_message = response.json().get('error', 'Login failed. Please try again.')
-            flash(error_message, "danger")
+            # Display error message from backend
+            flash(response.json().get("error", "Login failed. Please try again."), "danger")
+
     return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("You have been logged out.", "info")
+    return redirect(url_for('login'))
+
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -88,7 +126,7 @@ def register():
 @app.route('/plan', methods=['GET', 'POST'])
 def plan():
     if request.method == 'POST':
-        user_id = 1  # Replace with session user_id in production
+        user_id = session.get('user_id')
 
         # Gather plan details from form
         plan_name = request.form.get('plan_name')
@@ -148,7 +186,7 @@ def my_plans():
     """
     Fetches all plans for user=1, then displays them.
     """
-    user_id = 1  # Replace with session user_id in production
+    user_id = session.get('user_id')
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
 
     if resp.status_code == 200:
@@ -166,7 +204,7 @@ def tracker():
     """
     Allows users to track their workout performance for each lift in a selected plan.
     """
-    user_id = 1  # Replaced with session user_id in production 
+    user_id = session.get('user_id')
 
     if request.method == 'POST':
         plan_id = request.form.get('plan_id')
@@ -251,7 +289,7 @@ def tracking_history():
     """
     Displays all tracking data for the user.
     """
-    user_id = 1  #replace
+    user_id = session.get('user_id')
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings")
 
     if resp.status_code == 200:
