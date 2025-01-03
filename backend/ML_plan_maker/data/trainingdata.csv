@@ -1,0 +1,31 @@
+Goal,Legs,Chest,Arms,Back,Full Body,Lifts,Reps
+0,1,0,0,0,0,Squat;Leg Press;Hamstring Curls;Hip Abductors; Hip Adductors;Calf Raise,10
+1,1,0,0,0,0,Squat;Leg Press;Hamstring Curls;Hip Abductors; Hip Adductors;Calf Raise,6
+0,0,1,0,0,0,Dumbbell Flat Press;Dumbbell Incline Press;Pec Deck;Weighted Dips,10
+1,0,1,0,0,0,Dumbbell Flat Press;Dumbbell Incline Press;Pec Deck;Weighted Dips,6
+0,0,0,1,0,0,Shoulder Dumbbell Press;Pull-Ups;Dumbbell Curl;Cable Curl;Lat Raises;Tricep Extension,10
+1,0,0,1,0,0,Shoulder Dumbbell Press;Pull-Ups;Dumbbell Curl;Cable Curl;Lat Raises;Tricep Extension,6
+0,0,0,0,1,0,Cable Row;Barbell Row;Rear Delt Flies;Deadlift;Pull-Ups;Lat Pull Downs,10
+1,0,0,0,1,0,Cable Row;Barbell Row;Rear Delt Flies;Deadlift;Pull-Ups;Lat Pull Downs,6
+0,0,0,0,0,1,Machine Chest Press;Push-Ups;Leg Press;Romanian Deadlift;Hammer Curl;Overhead Tricep Extensions;Lat Raises;Lat Pull Overs,10
+1,0,0,0,0,1,Machine Chest Press;Push-Ups;Leg Press;Romanian Deadlift;Hammer Curl;Overhead Tricep Extensions;Lat Raises;Lat Pull Overs,6
+0,1,1,0,0,0,High Bar Squat;Hamstring Curls;Leg Extensions;Barbell Bench Press;Dumbbell Incline Press;Chest Flies (DB or Cable),10
+1,1,1,0,0,0,High Bar Squat;Hamstring Curls;Leg Extensions;Barbell Bench Press;Dumbbell Incline Press;Chest Flies (DB or Cable),6
+0,0,1,1,0,0,Cable Chest Press;Front Raises;Lat Raises;Dumbbell Curl;Dumbbell Incline Press;Tricep Extension;Pec Deck,10
+1,0,1,1,0,0,Cable Chest Press;Front Raises;Lat Raises;Dumbbell Curl;Dumbbell Incline Press;Tricep Extension;Pec Deck,6
+0,0,0,1,1,0,Dumbbell Row;Spider Curl;Overhead Tricep Press;Skull Crushers;Rear Delt Flies;T-Bar Row,10
+1,0,0,1,1,,Dumbbell Row;Spider Curl;Overhead Tricep Press;Skull Crushers;Rear Delt Flies;T-Bar Row,6
+0,1,0,1,0,0,Leg Extensions;Hamstring Curls;Hip Thrust;Machine Curl;Overhead Tricep Extensions;Lat Raises,10
+1,1,0,1,0,0,Leg Extensions;Hamstring Curls;Hip Thrust;Machine Curl;Overhead Tricep Extensions;Lat Raises,6
+0,1,0,0,1,0,Low Bar Squat;Barbell Row;Romanian Deadlift;Bulgarian Split Squats; Upright Row;Lat Pull Downs;Sumo Deadlift,10
+1,1,0,0,1,0,Low Bar Squat;Barbell Row;Romanian Deadlift;Bulgarian Split Squats; Upright Row;Lat Pull Downs;Sumo Deadlift,6
+0,1,0,0,0,1,Squat;Box Squat;Lat Pull Overs; Lat Raises;Cable Chest Press;Single Arm Tricep Extensions;Lunges;Plank ,10
+1,1,0,0,0,1,Squat;Box Squat;Lat Pull Overs; Lat Raises;Cable Chest Press;Single Arm Tricep Extensions;Lunges;Plank ,6
+0,0,1,0,1,0,Barbell Row;Lat Pull Overs;Lat Pull Downs;Dumbell Flat Press;Pec Deck;Barbell Bench Incline Press,10
+1,0,1,0,1,0,Barbell Row;Lat Pull Overs;Lat Pull Downs;Dumbell Flat Press;Pec Deck;Barbell Bench Incline Press,6
+0,0,1,0,0,1,Push-Ups;Pull-Ups;Squat;Deadlift;Russian Twist;Standing Overhead Press;Hammer Curl,10
+1,0,1,0,0,1,Push-Ups;Pull-Ups;Squat;Deadlift;Russian Twist;Standing Overhead Press;Hammer Curl,6
+0,0,0,1,0,1,Cable Row;Dumbbell Curl;Single Arm Tricep Extensions;Front Raises;Pec Deck;Calf Raise,10
+1,0,0,1,0,1,Cable Row;Dumbbell Curl;Single Arm Tricep Extensions;Front Raises;Pec Deck;Calf Raise,6
+0,0,0,0,1,1,Dumbbell Row;Upright Row;Lat Pull Downs;Leg Press;Hamstring Curls;Skull Crushers;Shoulder Machine Press,10
+1,0,0,0,1,1,Dumbbell Row;Upright Row;Lat Pull Downs;Leg Press;Hamstring Curls;Skull Crushers;Shoulder Machine Press,6

@@ -5,6 +5,7 @@ import sys
 import os
 from sqlalchemy import func
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from backend.ML_plan_maker.model import predict
 from config import Config
 from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
 
@@ -410,6 +411,11 @@ def get_user_trackings(user_id):
     except Exception as e:
         app.logger.error(f"Error retrieving user trackings: {str(e)}")
         return jsonify({"error": "Server error"}), 500
+    
+@app.route('/api/generate-plan', methods=['POST'])
+def generate_plan():
+    return None  #place holder
+
 
 
 if __name__ == "__main__":
