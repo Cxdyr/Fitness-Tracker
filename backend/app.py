@@ -3,8 +3,6 @@ from flask_bcrypt import Bcrypt
 from flask import Flask, jsonify, request
 import sys
 import os
-
-from numpy import extract
 from sqlalchemy import func
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import Config
@@ -34,7 +32,7 @@ def populate_lifts():
         {"name": "Deadlift"},
         {"name": "Sumo Deadlift"},
         {"name": "Bench Press"},
-        {"name": "Shoulder Dumbell Press"},
+        {"name": "Shoulder Dumbbell Press"},
         {"name": "Shoulder Barbell Press"},
         {"name": "Shoulder Machine Press"},
         {"name": "Barbell Row"},
@@ -51,11 +49,12 @@ def populate_lifts():
         {"name": "Cable Curl"},
         {"name": "Overhead Tricep Press"},
         {"name": "Overhead Tricep Extensions"},
+        {"name": "Single Arm Tricep Extensions"},
         {"name": "Tricep Extension"},
         {"name": "Skull Crushers"},
         {"name": "Tricep Pushdowns"},
-        {"name": "Lat Pull downs"},
-        {"name": "Lat Pull overs"},
+        {"name": "Lat Pull Downs"},
+        {"name": "Lat Pull Overs"},
         {"name": "Lat Raises"},
         {"name": "Front Raises"},
         {"name": "Rear Delt Flies"},
@@ -63,6 +62,7 @@ def populate_lifts():
         {"name": "Cable Chest Press"},
         {"name": "Chest Flies (DB or Cable)"},
         {"name": "Lunges"},
+        {"name": "Weighted Dips"},
         {"name": "Plank"},
         {"name": "Leg Press"},
         {"name": "Leg Extensions"},
@@ -74,7 +74,6 @@ def populate_lifts():
         {"name": "Russian Twist"},
         {"name": "Upright Row"},
         {"name": "Standing Overhead Press"},
-        {"name": "Rear Delt Flies"},
         {"name": "Romanian Deadlift"},
         {"name": "Bulgarian Split Squats"},
     ]
@@ -405,7 +404,7 @@ def get_user_trackings(user_id):
                         "weight_performed": perf.weight_performed,
                         "reps_in_reserve": perf.reps_in_reserve
                     })
-
+                           
         return jsonify(trackings), 200
 
     except Exception as e:

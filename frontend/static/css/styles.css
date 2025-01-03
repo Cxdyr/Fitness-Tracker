@@ -328,3 +328,31 @@ footer {
     font-size: 0.9rem;
 }
 
+.aboutus {
+    margin-left: 23%;
+    margin-right: 23%;
+    text-align: justify; /* Optional: Makes the text neatly aligned */
+    line-height: 1.8; /* Improves readability */
+    font-size: 1rem; /* Adjust the text size */
+    color: #f8f8f8; /* Matches your dark theme */
+}
+
+.plan-bubble {
+    background-color: #1a1a1a; /* Black background */
+    border-radius: 15px; /* Smooth, rounded edges */
+    margin-left: 25%;
+    margin-right: 25%;
+    padding: 20px; /* Space inside the bubble */
+    margin-bottom: 20px; /* Space between bubbles */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+    color: #f8f8f8; /* Light text for contrast */
+    font-family: Arial, sans-serif; /* Clean font style */
+    transition: transform 0.2s ease; /* Add smooth hover effect */
+}
+
+.plan-bubble:hover {
+    transform: translateY(-5px); /* Slight lift on hover */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* Enhanced shadow on hover */
+}
+
+

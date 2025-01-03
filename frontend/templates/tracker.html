@@ -11,25 +11,11 @@
         <h1>Workout Tracker</h1>
         <nav>
             <a href="{{ url_for('dashboard') }}" class="btn">Dashboard</a>
-            <a href="{{ url_for('my_plans') }}" class="btn">My Plans</a>
             <a href="{{ url_for('tracking_history') }}">Tracking History</a>
         </nav>
     </header>
 
     <main>
-
-
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for category, message in messages %}
-                <li class="alert alert-{{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-    
         <!-- Plan selection form -->
         <form method="get" action="{{ url_for('tracker') }}">
             <label for="plan_id">Select a Workout to Track:</label>
@@ -52,9 +38,9 @@
                     <thead>
                         <tr>
                             <th>Lift</th>
-                            <th>Reps Performed</th>
-                            <th>Weight Performed (kg)</th>
-                            <th>Reps in Reserve</th>
+                            <th>Average Reps Performed</th>
+                            <th>Average Weight Performed (lbs)</th>
+                            <th>Average Reps in Reserve</th>
                         </tr>
                     </thead>
                     <tbody>

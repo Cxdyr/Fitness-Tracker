@@ -31,6 +31,10 @@ def index():
         calendar_month_name=get_month_name()
     )
 
+@app.route('/aboutus')
+def aboutus():
+    return render_template("aboutus.html")
+
 
 @app.route('/dashboard')
 def dashboard():

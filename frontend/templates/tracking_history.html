@@ -9,40 +9,37 @@
 <body>
     <div class="container">
         <h1>Your Tracking History</h1>
-
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <div class="flash-messages">
-              {% for category, message in messages %}
-                <div class="flash-message {{ category }}">{{ message }}</div>
-              {% endfor %}
-            </div>
-          {% endif %}
-        {% endwith %}
-
         {% if trackings %}
-            {% set grouped_trackings = trackings | groupby('date') %}
-            {% for date, items in grouped_trackings %}
-                <div class="tracking-date">
-                    <h2><span class="formatted-date" data-date="{{ date }}">{{ date }}</span></h2>
-                </div>
-                <div class="tracking-entries">
-                    {% for tracking in items %}
-                        <div class="tracking-card">
-                            <h3 class="plan-name">{{ tracking.plan_name }}</h3>
-                            <h4 class="lift-name">{{ tracking.lift_name }}</h4>
-                            <p><strong>Reps Performed:</strong> {{ tracking.reps_performed }}</p>
-                            <p><strong>Weight Performed:</strong> {{ tracking.weight_performed }} kg</p>
-                            <p><strong>Reps in Reserve:</strong> {{ tracking.reps_in_reserve }}</p>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No tracking data available.</p>
-        {% endif %}
+        {% set grouped_trackings = trackings | groupby('date') %}
+        {% for date, items in grouped_trackings %}
+            <!-- Date Header -->
+            <div class="tracking-date">
+                <h2 style="text-align: center;">{{ date }}</h2>
+            </div>
+            
+            <!-- Tracking Entries for the Date -->
+            <div class="tracking-entries">
+                {% for tracking in items %}
+                    <!-- Lift Details -->
+                    <div class="tracking-card">
+                        <h4 class="lift-name">{{ tracking.lift_name }}</h4>
+                        <p><strong>Avg Reps Performed:</strong> {{ tracking.reps_performed }}</p>
+                        <p><strong>Avg Weight Lifted:</strong> {{ tracking.weight_performed }} lbs</p>
+                        <p><strong>Avg Reps in Reserve:</strong> {{ tracking.reps_in_reserve }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No tracking data available.</p>
+    {% endif %}
+    
+    
+    
+        
 
+
+        <br>
         <a href="{{ url_for('tracker') }}" class="btn">Back to Tracker</a>
     </div>
 

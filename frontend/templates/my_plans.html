@@ -9,39 +9,38 @@
 <body>
     <header>
         <nav>
-            <h1> My Plans</h1>
-            <a href="{{ url_for('dashboard') }}" class="btn">Dashboard</a>
-            <a href="{{ url_for('my_plans') }}" class="btn">My Plans</a>
-            <a href="{{ url_for('tracker') }}" class="btn">Tracker</a>
+            <h1> My Plans</h1> <br><br>
+            <a href="{{ url_for('dashboard') }}" class="btn">Home</a>
+            <a href="{{ url_for('plan') }}" class="btn">Create Plan</a>
+            <a href="{{ url_for('tracker') }}" class="btn">Track Workout</a>
         </nav>
     </header>
 
     <main>
 
         {% if plans %}
-            <p>
-                {% for plan in plans %}
-                        <strong>{{ plan.plan_name }}</strong> 
-                        (Type: {{ plan.plan_type or 'N/A' }}, Duration: {{ plan.plan_duration or 'N/A' }} mins)
-                        <br>
-                        <!-- Display lifts for the plan -->
-                        {% if plan.lifts %}
-                            <p>
-                                {% for lift in plan.lifts %}
-                                <div class="lifts">
-
-                                    <p>{{ lift.lift_name }} - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</p>
-                                {% endfor %}
-                                    </p>
-                        {% else %}
-                            <p>No exercises found for this plan.</p>
-                        {% endif %}
-                                </p>
-                {% endfor %}
-                            </p>
-        {% else %}
-            <p>You have not created any plans yet.</p>
-        {% endif %}
+        <p>
+            {% for plan in plans %}
+            <div class="plan-bubble">
+                <strong><p>{{ plan.plan_name}}</p></strong>
+                Notes: {{ plan.plan_type or 'N/A' }} | Duration: {{ plan.plan_duration or 'N/A' }} mins
+                <br>
+    
+                <!-- Display lifts for the plan -->
+                {% if plan.lifts %}
+                    {% for lift in plan.lifts %}
+                        <p>{{ lift.lift_name }} - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</p>
+                    {% endfor %}
+                {% else %}
+                    <p>No exercises found for this plan.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </p>
+    {% else %}
+        <p>You have not created any plans yet.</p>
+    {% endif %}
+    
     </main>
 
     <footer>

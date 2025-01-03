@@ -43,14 +43,17 @@
     </div>
 
     <div class="buttons">
-        <!-- Link to create a plan -->
-        <a href="{{ url_for('plan') }}" class="btn">Create Plan</a>
-
         <!-- Link to view existing plans -->
         <a href="{{ url_for('my_plans') }}" class="btn">View Plans</a>
 
         <!-- Link to track a plan -->
-        <a href="{{ url_for('tracker') }}" class="btn">Track a Plan</a>
+        <a href="{{ url_for('tracker') }}" class="btn">Track Workout</a>
+
+        <!-- Link to view tracking history -->
+         <a href="{{ url_for('tracking_history')}}" class="btn">Tracking History</a>
+
+        <!-- Link to logout -->
+         <a href="{{ url_for('logout')}}" class="btn>">Logout</a>
     </div>
 
 
