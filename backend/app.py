@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask_bcrypt import Bcrypt
+from flask_bcrypt import bcrypt
 from flask import Flask, jsonify, request
 import sys
 import os
@@ -16,6 +16,18 @@ db.init_app(app)
 @app.route('/')
 def index():
     return "Backend is running!"
+
+@app.route('/api/get-name/<int:user_id>', methods=['GET'])
+def get_name(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user and user.first_name:
+        return jsonify({"firstname": user.first_name}), 200
+    elif user:
+        return jsonify({"error": "First name not found"}), 404
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+
 
 
 # End point for getting user tracked dates for calander display on dashboard
