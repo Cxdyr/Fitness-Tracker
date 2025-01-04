@@ -16,9 +16,17 @@ app.config.from_object(Config)
 BACKEND_URL = "http://127.0.0.1:5001/api"
 
 # Functions
+#Get user id in session func
 def get_id():
     user_id = session.get('user_id')
     return user_id
+
+#Ensure user is logged in for according app routes func
+def login_required():
+    if not session.get("user_id"):
+        flash("You must be logged in to view this page.","danger")
+        return redirect(url_for("login"))
+
 
 # -------------------------------------------------------------------
 # Routes
@@ -44,7 +52,12 @@ def aboutus():
 
 @app.route('/dashboard')
 def dashboard():
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to access the dashboard.", "danger")
+        return redirect(url_for("login"))
     user_id = get_id()
+
     response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
     if response.status_code==200:
         user_firstname = response.json().get('firstname')
@@ -142,6 +155,11 @@ def register():
 
 @app.route('/plan', methods=['GET', 'POST'])
 def plan():
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to access the plan maker.", "danger")
+        return redirect(url_for("login"))
+    
     if request.method == 'POST':
         user_id = get_id()
 
@@ -200,7 +218,12 @@ def plan():
 
 @app.route('/my_plans')
 def my_plans():
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to access your plans.", "danger")
+        return redirect(url_for("login"))
     user_id = get_id()
+
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
 
     response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
@@ -222,6 +245,11 @@ def my_plans():
 
 @app.route('/delete-plan', methods=['GET', 'POST'])
 def delete_plan():
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to access the delete plans page.", "danger")
+        return redirect(url_for("login"))
+    
     user_id = get_id()
     if not user_id:
         flash("You must be logged in to delete a plan.", "danger")
@@ -263,6 +291,11 @@ def tracker():
     """
     Allows users to track their workout performance for each lift in a selected plan.
     """
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to access the tracker.", "danger")
+        return redirect(url_for("login"))
+    
     user_id = get_id()
 
     if request.method == 'POST':
@@ -350,6 +383,11 @@ def tracking_history():
     """
     Displays all tracking data for the user.
     """
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to access the tracking history.", "danger")
+        return redirect(url_for("login"))
+    
     user_id = get_id()
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings")
 
