@@ -18,73 +18,6 @@ def index():
     return "Backend is running!"
 
 
-def populate_lifts():
-    predefined_lifts = [
-        {"name": "Barbell Bench Press"},
-        {"name": "Barbell Bench Incline Press"},
-        {"name": "Dumbbell Flat Press"},
-        {"name": "Dumbbell Incline Press"},
-        {"name": "Machine Chest Press"},
-        {"name": "Squat"},
-        {"name": "High Bar Squat"},
-        {"name": "Low Bar Squat"},
-        {"name": "Box Squat"},
-        {"name": "Pin Press Squat"},
-        {"name": "Deadlift"},
-        {"name": "Sumo Deadlift"},
-        {"name": "Bench Press"},
-        {"name": "Shoulder Dumbbell Press"},
-        {"name": "Shoulder Barbell Press"},
-        {"name": "Shoulder Machine Press"},
-        {"name": "Barbell Row"},
-        {"name": "Dumbbell Row"},
-        {"name": "Cable Row"},
-        {"name": "T-Bar Row"},
-        {"name": "Pull-Ups"},
-        {"name": "Push-Ups"},
-        {"name": "Dumbbell Curl"},
-        {"name": "Barbell Curl"},
-        {"name": "Hammer Curl"},
-        {"name": "Spider Curl"},
-        {"name": "Machine Curl"},
-        {"name": "Cable Curl"},
-        {"name": "Overhead Tricep Press"},
-        {"name": "Overhead Tricep Extensions"},
-        {"name": "Single Arm Tricep Extensions"},
-        {"name": "Tricep Extension"},
-        {"name": "Skull Crushers"},
-        {"name": "Tricep Pushdowns"},
-        {"name": "Lat Pull Downs"},
-        {"name": "Lat Pull Overs"},
-        {"name": "Lat Raises"},
-        {"name": "Front Raises"},
-        {"name": "Rear Delt Flies"},
-        {"name": "Pec Deck"},
-        {"name": "Cable Chest Press"},
-        {"name": "Chest Flies (DB or Cable)"},
-        {"name": "Lunges"},
-        {"name": "Weighted Dips"},
-        {"name": "Plank"},
-        {"name": "Leg Press"},
-        {"name": "Leg Extensions"},
-        {"name": "Hamstring Curls"},
-        {"name": "Hip Abductors"},
-        {"name": "Hip Adductors"},
-        {"name": "Hip Thrust"},
-        {"name": "Calf Raise"},
-        {"name": "Russian Twist"},
-        {"name": "Upright Row"},
-        {"name": "Standing Overhead Press"},
-        {"name": "Romanian Deadlift"},
-        {"name": "Bulgarian Split Squats"},
-    ]
-    for lift_data in predefined_lifts:
-        existing_lift = Lift.query.filter_by(name=lift_data["name"]).first()
-        if not existing_lift:
-            new_lift = Lift(name=lift_data["name"])
-            db.session.add(new_lift)
-    db.session.commit()
-
 # End point for getting user tracked dates for calander display on dashboard
 @app.route('/api/tracked-dates', methods=['GET'])
 def get_tracked_dates_api():
@@ -412,6 +345,7 @@ def get_user_trackings(user_id):
         app.logger.error(f"Error retrieving user trackings: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
+    
 @app.route('/api/generate-plan', methods=['POST'])
 def generate_plan():
     return None  #place holder
@@ -419,8 +353,4 @@ def generate_plan():
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        populate_lifts()
-
     app.run(debug=True, host='0.0.0.0', port=5001)

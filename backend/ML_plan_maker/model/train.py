@@ -1,7 +1,7 @@
 import pickle
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-from decision_tree import DecisionTreeModel
+from .decision_tree import DecisionTreeModel
 
 data_path = '../data/trainingdata.csv'
 
