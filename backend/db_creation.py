@@ -73,4 +73,6 @@ def populate_lifts():
         print("Lifts populated successfully!")
 
 if __name__ == "__main__":
-    populate_lifts()
+    with app.app_context():
+     db.create_all()
+     populate_lifts()
