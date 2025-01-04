@@ -9,7 +9,7 @@
 <body>
     <header>
         <nav>
-            <h1> My Plans</h1> <br><br>
+            <h1> {{user_firstname}}'s Plans</h1> <br><br>
             <a href="{{ url_for('dashboard') }}" class="btn">Home</a>
             <a href="{{ url_for('plan') }}" class="btn">Create Plan</a>
             <a href="{{ url_for('delete_plan')}}" class="btn"> Remove Plan</a>
@@ -45,7 +45,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 Fitness Friend. All rights reserved.</p>
+        <p>&copy; 2024 Fitness Friend - by Cody Rabie. All rights reserved. </p>
     </footer>
 </body>
 </html>

@@ -16,7 +16,6 @@ app.config.from_object(Config)
 BACKEND_URL = "http://127.0.0.1:5001/api"
 
 # Functions
-
 def get_id():
     user_id = session.get('user_id')
     return user_id
@@ -37,6 +36,7 @@ def index():
         calendar_month_name=get_month_name()
     )
 
+
 @app.route('/aboutus')
 def aboutus():
     return render_template("aboutus.html")
@@ -45,6 +45,12 @@ def aboutus():
 @app.route('/dashboard')
 def dashboard():
     user_id = get_id()
+    response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
+    if response.status_code==200:
+        user_firstname = response.json().get('firstname')
+    else:
+        user_firstname = response.json().get('error', 'An error occured')
+        print("An error occured")
     now = datetime.now()
     year, month = now.year, now.month
 
@@ -68,7 +74,8 @@ def dashboard():
         month=calendar_data["month"],
         cal=calendar_data["calendar"],
         calendar_month_name=get_month_name(),
-        tracked_days=tracked_days
+        tracked_days=tracked_days,
+        user_firstname = user_firstname
     )
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -193,11 +200,15 @@ def plan():
 
 @app.route('/my_plans')
 def my_plans():
-    """
-    Fetches all plans for user=1, then displays them.
-    """
     user_id = get_id()
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+
+    response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
+    if response.status_code==200:
+        user_firstname = response.json().get('firstname')
+    else:
+        user_firstname = response.json().get('error', 'An error occured')
+        print("An error occured")
 
     if resp.status_code == 200:
         plans = resp.json()
@@ -206,7 +217,7 @@ def my_plans():
         plans = []
         flash("Could not load plans from backend.", "danger")
 
-    return render_template('my_plans.html', plans=plans)
+    return render_template('my_plans.html', plans=plans, user_firstname = user_firstname)
 
 
 @app.route('/delete-plan', methods=['GET', 'POST'])
@@ -352,4 +363,4 @@ def tracking_history():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
