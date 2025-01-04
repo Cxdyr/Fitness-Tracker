@@ -15,6 +15,12 @@ app.config.from_object(Config)
 # Backend API base URL
 BACKEND_URL = "http://127.0.0.1:5001/api"
 
+# Functions
+
+def get_id():
+    user_id = session.get('user_id')
+    return user_id
+
 # -------------------------------------------------------------------
 # Routes
 # -------------------------------------------------------------------
@@ -38,7 +44,7 @@ def aboutus():
 
 @app.route('/dashboard')
 def dashboard():
-    user_id = session.get('user_id')
+    user_id = get_id()
     now = datetime.now()
     year, month = now.year, now.month
 
@@ -130,7 +136,7 @@ def register():
 @app.route('/plan', methods=['GET', 'POST'])
 def plan():
     if request.method == 'POST':
-        user_id = session.get('user_id')
+        user_id = get_id()
 
         # Gather plan details from form
         plan_name = request.form.get('plan_name')
@@ -190,7 +196,7 @@ def my_plans():
     """
     Fetches all plans for user=1, then displays them.
     """
-    user_id = session.get('user_id')
+    user_id = get_id()
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
 
     if resp.status_code == 200:
@@ -205,7 +211,7 @@ def my_plans():
 
 @app.route('/delete-plan', methods=['GET', 'POST'])
 def delete_plan():
-    user_id = session.get('user_id') 
+    user_id = get_id()
     if not user_id:
         flash("You must be logged in to delete a plan.", "danger")
         return redirect(url_for('login'))  
@@ -246,7 +252,7 @@ def tracker():
     """
     Allows users to track their workout performance for each lift in a selected plan.
     """
-    user_id = session.get('user_id')
+    user_id = get_id()
 
     if request.method == 'POST':
         plan_id = request.form.get('plan_id')
@@ -333,7 +339,7 @@ def tracking_history():
     """
     Displays all tracking data for the user.
     """
-    user_id = session.get('user_id')
+    user_id = get_id()
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings")
 
     if resp.status_code == 200:
