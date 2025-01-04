@@ -38,7 +38,7 @@ class Plan(db.Model):
     plan_type = db.Column(db.String(50), nullable=True) 
     plan_duration = db.Column(db.String(50), nullable=True)
     creation_date = db.Column(db.DateTime, server_default=func.now()) 
-    plan_lifts = db.relationship('PlanLift', backref='plan', lazy=True)
+    plan_lifts = db.relationship('PlanLift', backref='plan', lazy=True, cascade="all, delete-orphan")
 
 
 class PlanLift(db.Model):

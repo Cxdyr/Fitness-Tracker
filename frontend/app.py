@@ -203,6 +203,44 @@ def my_plans():
     return render_template('my_plans.html', plans=plans)
 
 
+@app.route('/delete-plan', methods=['GET', 'POST'])
+def delete_plan():
+    user_id = session.get('user_id') 
+    if not user_id:
+        flash("You must be logged in to delete a plan.", "danger")
+        return redirect(url_for('login'))  
+
+    if request.method == 'POST':
+        plan_id = request.form.get('plan_id')
+        if not plan_id:
+            flash("Please select a plan to delete.", "danger")
+            return redirect(url_for('delete_plan'))
+
+        # Call the backend delete-plan API
+        delete_url = f"{BACKEND_URL}/delete-plan"
+        response = requests.post(delete_url, json={"plan_id": plan_id})
+
+        if response.status_code == 200:
+            flash("Plan deleted successfully.", "success")
+        else:
+            error_message = response.json().get("error", "An error occurred.")
+            flash(f"Error: {error_message}", "danger")
+        return redirect(url_for('my_plans'))  
+
+    # Fetch the plans for dropdown menu
+    plans_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+    if plans_resp.status_code == 200:
+        plans = plans_resp.json()
+    else:
+        plans = []
+        flash("Could not load plans", "danger")
+
+    return render_template('delete_plan.html', plans=plans)
+
+
+
+
+
 @app.route('/tracker', methods=['GET', 'POST'])
 def tracker():
     """
@@ -287,6 +325,8 @@ def tracker():
                 flash("Could not load plan details.", "danger")
 
         return render_template('tracker.html', user_plans=user_plans, selected_plan=selected_plan)
+
+
 
 @app.route('/tracking_history')
 def tracking_history():

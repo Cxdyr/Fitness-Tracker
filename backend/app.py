@@ -208,6 +208,38 @@ def get_user_plans(user_id):
     except Exception as e:
         app.logger.error(f"Error fetching plans for user {user_id}: {str(e)}")
         return jsonify({"error": "Server error"}), 500
+    
+
+@app.route('/api/delete-plan', methods=['POST'])
+def delete_plan():
+    try:
+        if request.is_json:
+            data = request.get_json()
+            plan_id = data.get('plan_id')
+        else:
+            plan_id = request.form.get('plan_id')
+
+        if not plan_id:
+            return jsonify({"error": "Plan ID is required"}), 400
+
+        # Find plan in the database
+        plan = Plan.query.get(plan_id)
+        if not plan:
+            return jsonify({"error": f"Plan with ID {plan_id} not found"}), 404
+
+        # Deleting related PlanLift records manually incase cascade delete fails - models.py
+        PlanLift.query.filter_by(plan_id=plan_id).delete()
+
+        # Delete plan
+        db.session.delete(plan)
+        db.session.commit()
+
+        return jsonify({"message": f"Plan {plan_id} deleted successfully"}), 200
+
+    except Exception as e:
+        app.logger.error(f"Error deleting plan: {e}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred while deleting the plan"}), 500
+
 
 
 
@@ -345,7 +377,7 @@ def get_user_trackings(user_id):
         app.logger.error(f"Error retrieving user trackings: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
-    
+
 @app.route('/api/generate-plan', methods=['POST'])
 def generate_plan():
     return None  #place holder
