@@ -340,8 +340,8 @@ footer {
 .plan-bubble {
     background-color: #1a1a1a; /* Black background */
     border-radius: 15px; /* Smooth, rounded edges */
-    margin-left: 25%;
-    margin-right: 25%;
+    margin-left: 10%;
+    margin-right: 10%;
     padding: 20px; /* Space inside the bubble */
     margin-bottom: 20px; /* Space between bubbles */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */

@@ -359,36 +359,34 @@ def get_user_trackings(user_id):
 @app.route('/api/generate_plan', methods=['POST'])
 def generate_plan():
     try:
-        data = request.get_json()
+        data = request.get_json() # recieving json information from frontend
         if not data:
             return jsonify({"error": "Invalid JSON"}), 400
 
         app.logger.info(f"Received data: {data}")
 
-        user_id = data.get('user_id')
-        goal = data.get('goal')  # "hypertrophy" or "strength"
-        body_parts = data.get('body_parts')  # List of body parts to focus on
+        user_id = data.get('user_id') 
+        goal = data.get('goal')  # "hypertrophy" or "strength" selection
+        body_parts = data.get('body_parts')  # List of body parts to focus on for prediction model
 
         if not user_id or not goal or not body_parts:
             return jsonify({"error": "user_id, goal, and body_parts are required"}), 400
 
-        # Dynamically generate the plan name based on selected body parts
+        # Generate plan name, if 1 body part targeted - __ workout, if 2 - __ and __ workout, if more so on
         if len(body_parts) == 1:
-            plan_name = f"{body_parts[0]} Workout"
+            plan_name = f"{body_parts[0]} workout"
         elif len(body_parts) == 2:
-            plan_name = f"{body_parts[0]} and {body_parts[1]} Workout"
+            plan_name = f"{body_parts[0]} and {body_parts[1]} workout"
         else:
-            plan_name = f"{', '.join(body_parts[:-1])}, and {body_parts[-1]} Workout"
+            plan_name = f"{', '.join(body_parts[:-1])}, and {body_parts[-1]} workout"
 
-        # Check if a plan with the same name already exists for the user
+        # Check if a plan with the same name already exists for the user, if it does - do not make new plan
         existing_plan = Plan.query.filter_by(user_id=user_id, plan_name=plan_name).first()
         if existing_plan:
             app.logger.warning(f"Duplicate plan detected for user {user_id} with name {plan_name}.")
             return jsonify({"error": f"A plan named '{plan_name}' already exists."}), 400
 
-        # Predict lifts and reps using the decision tree model
-
-        
+        # Predict lifts and reps using the model
         predictions = predict_lifts(goal, body_parts)
 
         # Create the Plan
@@ -396,9 +394,9 @@ def generate_plan():
             user_id=user_id,
             plan_name=plan_name,
             plan_type=goal,
-            plan_duration="50"  # Default duration
+            plan_duration="50"  # Default duration for now
         )
-        db.session.add(new_plan)
+        db.session.add(new_plan) #adding new plan to database
         db.session.flush()  # Get the plan ID without committing
 
         # Add lifts to the Plan
@@ -406,21 +404,21 @@ def generate_plan():
             lift_names = prediction.get('lift_name').split(';')  # Split semicolon-separated lifts
             for lift_name in lift_names:
                 lift_name = lift_name.strip()  # Clean up whitespace
-                lift = Lift.query.filter_by(name=lift_name).first()
+                lift = Lift.query.filter_by(name=lift_name).first() # finding lifts in database based on name
 
                 if not lift:
                     app.logger.warning(f"Lift not found: {lift_name}")
                     continue
 
-                plan_lift = PlanLift(
+                plan_lift = PlanLift( #Create plan lift with lift, plan_id, 
                     plan_id=new_plan.id,
                     lift_id=lift.id,
-                    sets=prediction.get('sets', 3),
-                    reps=prediction.get('reps', 10),
+                    sets=3,
+                    reps=prediction.get('reps', 10), #predicted reps
                 )
-                db.session.add(plan_lift)
+                db.session.add(plan_lift) #adding to database
 
-        db.session.commit()
+        db.session.commit() 
 
         return jsonify({"message": "Plan generated successfully", "plan_name": plan_name}), 201
 
@@ -430,9 +428,6 @@ def generate_plan():
         return jsonify({"error": f"Server error: {e}"}), 500
 
 
-
-
-    
 
 @app.route('/api/delete-plan', methods=['POST'])
 def delete_plan():
