@@ -16,12 +16,12 @@ app.config.from_object(Config)
 BACKEND_URL = "http://127.0.0.1:5001/api"
 
 # Functions
-#Get user id in session func
+# Get user id in session func
 def get_id():
     user_id = session.get('user_id')
     return user_id
 
-#Ensure user is logged in for according app routes func
+# Ensure user is logged in for according app routes func
 def login_required():
     if not session.get("user_id"):
         flash("You must be logged in to view this page.","danger")
@@ -32,6 +32,7 @@ def login_required():
 # Routes
 # -------------------------------------------------------------------
 
+# Index.html page
 @app.route('/')
 def index():
     calendar_data = generate_calendar() #calendar display - gathering data, this calander is for general guests displaying the current day
@@ -44,12 +45,13 @@ def index():
         calendar_month_name=get_month_name()
     )
 
-
+# Aboutus.html page
 @app.route('/aboutus')
 def aboutus():
     return render_template("aboutus.html")
 
 
+# Dashboard.html page
 @app.route('/dashboard')
 def dashboard():
     login_required()
@@ -91,6 +93,8 @@ def dashboard():
         user_firstname = user_firstname
     )
 
+
+# Login.html page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -114,6 +118,7 @@ def login():
     return render_template('login.html', form=form)
 
 
+# Logout button
 @app.route('/logout')
 def logout():
     session.clear()
@@ -121,7 +126,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-
+# Register.html page
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
@@ -152,7 +157,7 @@ def register():
     return render_template("register.html", form=form)
 
 
-
+# Plan.html page
 @app.route('/plan', methods=['GET', 'POST'])
 def plan():
     login_required()
@@ -216,6 +221,7 @@ def plan():
         return render_template('plan.html', lifts=lifts)
 
 
+# My_plans.html page
 @app.route('/my_plans')
 def my_plans():
     login_required()
@@ -243,6 +249,7 @@ def my_plans():
     return render_template('my_plans.html', plans=plans, user_firstname = user_firstname)
 
 
+# Delete_plan.html page
 @app.route('/delete-plan', methods=['GET', 'POST'])
 def delete_plan():
     login_required()
@@ -283,9 +290,7 @@ def delete_plan():
     return render_template('delete_plan.html', plans=plans)
 
 
-
-
-
+# Tracker.html page
 @app.route('/tracker', methods=['GET', 'POST'])
 def tracker():
     """
@@ -378,6 +383,7 @@ def tracker():
 
 
 
+# Tracking_history.html page
 @app.route('/tracking_history')
 def tracking_history():
     """
@@ -400,6 +406,7 @@ def tracking_history():
     return render_template('tracking_history.html', trackings=trackings)
 
 
+# Generate_plan.html page
 @app.route('/generate_plan', methods=['GET', 'POST'])
 def generate_plan():
     login_required()

@@ -11,12 +11,19 @@ app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
 
+# backend index route
 @app.route('/')
 def index():
     return "Backend is running!"
 
+
+# Get-name endpoint
 @app.route('/api/get-name/<int:user_id>', methods=['GET'])
 def get_name(user_id):
+    """
+    Gets user first_name for display purposes by searching users db by user_id (passed from frontend)
+    and finding user.first_name before returning in json format to frontend.
+    """
     user = User.query.filter_by(id=user_id).first()
     if user and user.first_name:
         return jsonify({"firstname": user.first_name}), 200
@@ -31,17 +38,21 @@ def get_name(user_id):
 # End point for getting user tracked dates for calander display on dashboard
 @app.route('/api/tracked-dates', methods=['GET'])
 def get_tracked_dates_api():
-    try:
+    """
+    Retreives user, current year, and month. Extracts tracked dates from users LiftPerformance table and populates tracked_dates_list
+    before ordering and returning data in json format for frontend retrieval and display.
+    """
+    try: # Gets user id, year, and month info
         user_id = request.args.get('user_id', type=int)
         year = request.args.get('year', type=int)
         month = request.args.get('month', type=int)
 
         if not user_id:
-            return jsonify({"error": "User ID is required"}), 400
+            return jsonify({"error": "User ID is required"}), 400 # User id auth error 
         if not year or not month:
-            return jsonify({"error": "Year and Month are required"}), 400
+            return jsonify({"error": "Year and Month are required"}), 400 # Unable to populate calander information error
 
-        tracked_dates = db.session.query(LiftPerformance.date).join(
+        tracked_dates = db.session.query(LiftPerformance.date).join( # Gathering all dates that user liftperformance entries have been created (days users tracked lifts)
             PlanLift, LiftPerformance.plan_lift_id == PlanLift.id
         ).join(
             Plan, PlanLift.plan_id == Plan.id
@@ -51,8 +62,8 @@ def get_tracked_dates_api():
             func.extract('month', LiftPerformance.date) == month 
         ).distinct().all()  # Use distinct to remove duplicates
 
-        unique_dates = set(date[0].date() for date in tracked_dates)  #Get unique dates
-        tracked_dates_list = [date.strftime("%Y-%m-%d") for date in sorted(unique_dates)]  
+        unique_dates = set(date[0].date() for date in tracked_dates)  #Get unique dates - a user can track multiple times in one day and this will prevent issues with this
+        tracked_dates_list = [date.strftime("%Y-%m-%d") for date in sorted(unique_dates)]  # Sorting dates into order
         return jsonify({"tracked_dates": tracked_dates_list}), 200
 
     except Exception as e:
@@ -62,8 +73,13 @@ def get_tracked_dates_api():
     
 # ----- BASIC AUTH ENDPOINTS (REGISTER/LOGIN) --------
 
+# End point for user registration
 @app.route('/api/register', methods=['POST'])
 def api_register():
+    """
+    Ensures user input username doesn't exist, creates new user with user input information user(username, password, first_name, last_name, email, goal)
+    and adds to users db.
+    """
     try:
         data = request.get_json()
         print("Received data:", data)  # Debug incoming data
@@ -80,7 +96,7 @@ def api_register():
         date_of_birth = datetime.strptime(data['date_of_birth'], '%Y-%m-%d').date()
         new_user = User(
             username=data['username'],
-            password_hash=bcrypt.generate_password_hash(data['password']).decode('utf-8'),
+            password_hash=bcrypt.generate_password_hash(data['password']).decode('utf-8'), # hasing user password before commit to db
             first_name=data['first_name'],
             last_name=data['last_name'],
             email=data['email'],
@@ -95,18 +111,22 @@ def api_register():
         return jsonify({"error": "Server error. Please try again later."}), 500
 
 
+# End point for user login
 @app.route('/api/login', methods=['POST'])
 def api_login():
+    """
+    Checks user input username/password with database username/password post hash for authentication.
+    """
     try:
         data = request.get_json()
         if not data or not data.get('username') or not data.get('password'):
             return jsonify({"error": "Username and password are required"}), 400
 
-        user = User.query.filter_by(username=data['username']).first()
-        if not user or not bcrypt.check_password_hash(user.password_hash, data['password']):
+        user = User.query.filter_by(username=data['username']).first() # Finding user in users table by unique username
+        if not user or not bcrypt.check_password_hash(user.password_hash, data['password']): # Validating password
             return jsonify({"error": "Invalid username or password"}), 401
 
-        return jsonify({
+        return jsonify({ 
             "message": "Login successful",
             "user": {
                 "id": user.id,
@@ -122,15 +142,17 @@ def api_login():
 
 # ----- PLAN CREATION AND VIEWING ENDPOINTS  --------
 
+# Create plan endpoint
 @app.route('/api/plans', methods=['POST'])
 def create_plan():
+    """
+    Create plan for user based on json data retrieved from frontend.
+    """
     try:
-        data = request.get_json()
+        data = request.get_json() #Retrieve json data from frontend
         if not data:
             return jsonify({"error": "Invalid JSON"}), 400
 
-        # Log incoming data
-        app.logger.info(f"Received data: {data}")
 
         user_id = data.get('user_id')
         plan_name = data.get('plan_name')
@@ -148,7 +170,7 @@ def create_plan():
             plan_type=plan_type,
             plan_duration=plan_duration
         )
-        db.session.add(new_plan)
+        db.session.add(new_plan) # Add the plan to plan db
         db.session.flush()  # Get the plan ID without committing
 
         # Add lifts to the Plan
@@ -159,7 +181,7 @@ def create_plan():
                 sets=lift.get('sets', 3),
                 reps=lift.get('reps', 10),
             )
-            db.session.add(plan_lift)
+            db.session.add(plan_lift) # Add plan lift to the planlift db
 
         db.session.commit()
         return jsonify({"message": "Plan created successfully", "plan_id": new_plan.id}), 201
@@ -169,14 +191,14 @@ def create_plan():
         return jsonify({"error": f"Server error: {e}"}), 500
 
 
-
+# Retrieve plans endpoint 
 @app.route('/api/users/<int:user_id>/plans', methods=['GET'])
 def get_user_plans(user_id):
     """
     Get all plans for a specific user.
     """
     try:
-        user = db.session.get(User, user_id)
+        user = db.session.get(User, user_id) 
         if not user:
             app.logger.error(f"User {user_id} not found.")
             return jsonify({"error": "User not found"}), 404
@@ -218,23 +240,25 @@ def get_user_plans(user_id):
         return jsonify({"error": "Server error"}), 500
     
 
-
+# Get all existing lifts endpoint
 @app.route('/api/lifts', methods=['GET'])
 def get_lifts():
     """
-    Get all predefined lifts.
+    Get all predefined lifts from lifts db.
     """
-    lifts = Lift.query.all()
-    lifts_data = [{"id": lift.id, "name": lift.name} for lift in lifts]
+    lifts = Lift.query.all() # retrieves all lifts
+    lifts_data = [{"id": lift.id, "name": lift.name} for lift in lifts] #formatting data into json 
     return jsonify(lifts_data), 200
 
 
 # -----TRACKING ENDPOINTS  --------
 
+#Track workout endpoint
 @app.route('/api/plans/<int:plan_id>/lifts/<int:lift_id>/track', methods=['POST'])
 def track_lift_performance(plan_id, lift_id):
     """
-    Track the performance of a specific lift in a plan.
+    Track the performance of a specific lift in a plan. First ensures plan and planlift exist, then retreives data from user input information 
+    (reps performed, weight performed, reps in reserve, soon to be added notes). Populates LiftPerformance record and adds to db.
     """
     try:
         # Validate the existence of the plan and lift
@@ -254,10 +278,10 @@ def track_lift_performance(plan_id, lift_id):
         weight_performed = data.get('weight_performed')
         reps_in_reserve = data.get('reps_in_reserve')
 
-        # Validate input 
+        # Validate inputs
         if reps_performed is None or weight_performed is None or reps_in_reserve is None:
             return jsonify({"error": "Missing required fields"}), 400
-
+        # Validate data types
         if not isinstance(reps_performed, int) or not isinstance(weight_performed, (int, float)) or not isinstance(reps_in_reserve, int):
             return jsonify({"error": "Invalid data types"}), 400
 
@@ -269,7 +293,7 @@ def track_lift_performance(plan_id, lift_id):
             reps_in_reserve=reps_in_reserve
         )
 
-        db.session.add(performance)
+        db.session.add(performance) #Adding new record to LiftPerformance db
         db.session.commit()
 
         return jsonify({
@@ -282,11 +306,12 @@ def track_lift_performance(plan_id, lift_id):
         return jsonify({"error": "Server error"}), 500
 
 
-
+#Retrive tracking data for display purposes
 @app.route('/api/plans/<int:plan_id>/lifts/<int:lift_id>/track', methods=['GET'])
 def get_lift_performance(plan_id, lift_id):
     """
-    Retrieve tracking data for a specific lift in a plan.
+    Retrieve tracking data for a specific lift in a plan. Ensures Plan exists, then ensures PlanLift exists (both by id), and retrieves all performances in order by descending date.
+    Puts data into json format and returns list of performance data for frontend display
     """
     try:
         # Validate the existence of the plan and lift
@@ -307,7 +332,8 @@ def get_lift_performance(plan_id, lift_id):
                 "date": perf.date.isoformat(),
                 "reps_performed": perf.reps_performed,
                 "weight_performed": perf.weight_performed,
-                "reps_in_reserve": perf.reps_in_reserve
+                "reps_in_reserve": perf.reps_in_reserve,
+                "additional_notes":perf.additional_notes
             })
 
         return jsonify(performances_data), 200
@@ -316,22 +342,23 @@ def get_lift_performance(plan_id, lift_id):
         app.logger.error(f"Error retrieving lift performance: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
-
+# Retreive all tracking data for a specific user endpoint
 @app.route('/api/users/<int:user_id>/trackings', methods=['GET'])
 def get_user_trackings(user_id):
     """
-    Retrieve all tracking data for a specific user.
+    Retrieve all tracking data for a specific user. Retreives user id, finds all plans that belong to user, searches through all plans and planlift records to find lift_performance records,
+    which are then stored into the trackings list in json format to be returned to the frontend for display
     """
     try:
-        user = db.session.get(User, user_id)
+        user = db.session.get(User, user_id) # Getting user id
         if not user:
             return jsonify({"error": "User not found"}), 404
 
-        plans = Plan.query.filter_by(user_id=user_id).all()
+        plans = Plan.query.filter_by(user_id=user_id).all() # Getting plan id
         if not plans:
             return jsonify([]), 200
 
-        trackings = []
+        trackings = [] #All PlanLift performance records
         for plan in plans:
             for plan_lift in plan.plan_lifts:
                 for perf in plan_lift.performances:
@@ -344,7 +371,8 @@ def get_user_trackings(user_id):
                         "date": perf.date.date().isoformat(),
                         "reps_performed": perf.reps_performed,
                         "weight_performed": perf.weight_performed,
-                        "reps_in_reserve": perf.reps_in_reserve
+                        "reps_in_reserve": perf.reps_in_reserve,
+                        "additional_notes":perf.additional_notes
                     })
                            
         return jsonify(trackings), 200
@@ -355,15 +383,20 @@ def get_user_trackings(user_id):
     
 
 
+#---------GENERATE/REMOVE PLAN ENDPOINTS ------------
 
+# Generate plan using decision tree model endpoint
 @app.route('/api/generate_plan', methods=['POST'])
 def generate_plan():
+    """
+    Generates user plan based on user input and decision tree model. First retrieves user inputed data in json form, creates plan name based on selected user input (target body parts),
+    and ensures no existing plan of identical name exists. Calls our prediction model with features (user input), returning our target information (lifts and reps). These predictions are then
+    seperated into individual lifts and added to the new Plan, PlanLift information before being sent to the database.
+    """
     try:
         data = request.get_json() # recieving json information from frontend
         if not data:
             return jsonify({"error": "Invalid JSON"}), 400
-
-        app.logger.info(f"Received data: {data}")
 
         user_id = data.get('user_id') 
         goal = data.get('goal')  # "hypertrophy" or "strength" selection
@@ -416,7 +449,7 @@ def generate_plan():
                     sets=3,
                     reps=prediction.get('reps', 10), #predicted reps
                 )
-                db.session.add(plan_lift) #adding to database
+                db.session.add(plan_lift) # Adding to database
 
         db.session.commit() 
 
@@ -428,9 +461,12 @@ def generate_plan():
         return jsonify({"error": f"Server error: {e}"}), 500
 
 
-
+# Remove existing plan endpoint
 @app.route('/api/delete-plan', methods=['POST'])
 def delete_plan():
+    """
+    Delete plan by plan id, first retreives json data of selected plan to delete, finds and deletes plan from Plans DB and other relational tables
+    """
     try:
         if request.is_json:
             data = request.get_json()
