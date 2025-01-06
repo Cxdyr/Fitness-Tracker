@@ -11,8 +11,9 @@ Create and Track your Lifts with Fitness Friend
 ---
 
 ## **Overview**
-- Fitness Friend is a web app that can be accessed on mobile or desktop that allows users to create workout plans - with different split days - containing their choice of lifts on each day - with set, rep, and weight ranges that the user can track in the user tracker.
-- Fitness Friend is an easy to use app that is useful to first time lifters - intermediary lifters - and advanced lifters, in a space that is oversaturated with hyper-advanced lifting apps and simple apps with low usefulness. 
+- Fitness Friend is a web app that can be accessed on mobile or desktop that allows users to create workout plans - containing their choice of lifts - with set, rep, and weight ranges that the user can track in the user tracker.
+- Fitness Friend's dashboard displays a calendar of the current month highlighting all days the user has tracked lifts, links to the plan interface, and tracker interface - allowing for a simple yet effective user interface.
+- Fitness Friend is an easy-to-use app that is useful to first-time lifters - intermediary lifters - and advanced lifters, in a space that is oversaturated with hyper-advanced lifting apps and simple apps with low usefulness. 
 - IN SIMPLE: Fitness Friend** helps users create and track their workout plans, monitor progress, and receive recommendations for their next sessions.
 
 ---
@@ -20,9 +21,9 @@ Create and Track your Lifts with Fitness Friend
 ## **Features**
 - User registration and login system.
 - Calendar integration for tracking activity.
-- User creation of workout plans (day split amount, 1-7, each day in split's name, each day's lift names - with set amount, rep amount, and weight amount)
-- User tracking of their workout plan through tracker - plan, day in split, lifts in day, sets - reps - weight in lift. 
-- Weight recommendations based on progress.
+- User creation of workout plans (plan name, plan description, lifts - which is connected in PlanLifts database for tracking user sets reps and weight performed.)
+- User tracking of their workout plan through tracker - avg sets - avg reps - avg weight - avg reps in reserve in lift. 
+- Weight recommendations based on previous lifts.
 - Autogeneration of plans for new lifters if selected.
 
 ---
