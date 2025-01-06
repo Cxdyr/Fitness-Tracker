@@ -1,13 +1,11 @@
 from datetime import datetime
 from flask_bcrypt import bcrypt
 from flask import Flask, jsonify, request
-import sys
-import os
 from sqlalchemy import func
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.ML_plan_maker.model import predict
-from config import Config
 from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
+from predict import predict_lifts
+from config import Config
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -160,7 +158,6 @@ def create_plan():
                 lift_id=lift['lift_id'],
                 sets=lift.get('sets', 3),
                 reps=lift.get('reps', 10),
-                weight_lifted=lift.get('weight_lifted')
             )
             db.session.add(plan_lift)
 
@@ -201,8 +198,7 @@ def get_user_plans(user_id):
                         "lift_id": pl.lift_id,
                         "lift_name": lift_obj.name,
                         "sets": pl.sets,
-                        "reps": pl.reps,
-                        "weight_lifted": pl.weight_lifted
+                        "reps": pl.reps
                     })
 
             plans_data.append({
@@ -221,38 +217,6 @@ def get_user_plans(user_id):
         app.logger.error(f"Error fetching plans for user {user_id}: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
-
-@app.route('/api/delete-plan', methods=['POST'])
-def delete_plan():
-    try:
-        if request.is_json:
-            data = request.get_json()
-            plan_id = data.get('plan_id')
-        else:
-            plan_id = request.form.get('plan_id')
-
-        if not plan_id:
-            return jsonify({"error": "Plan ID is required"}), 400
-
-        # Find plan in the database
-        plan = Plan.query.get(plan_id)
-        if not plan:
-            return jsonify({"error": f"Plan with ID {plan_id} not found"}), 404
-
-        # Deleting related PlanLift records manually incase cascade delete fails - models.py
-        PlanLift.query.filter_by(plan_id=plan_id).delete()
-
-        # Delete plan
-        db.session.delete(plan)
-        db.session.commit()
-
-        return jsonify({"message": f"Plan {plan_id} deleted successfully"}), 200
-
-    except Exception as e:
-        app.logger.error(f"Error deleting plan: {e}", exc_info=True)
-        return jsonify({"error": "An unexpected error occurred while deleting the plan"}), 500
-
-
 
 
 @app.route('/api/lifts', methods=['GET'])
@@ -390,10 +354,116 @@ def get_user_trackings(user_id):
         return jsonify({"error": "Server error"}), 500
     
 
-@app.route('/api/generate-plan', methods=['POST'])
-def generate_plan():
-    return None  #place holder
 
+
+@app.route('/api/generate_plan', methods=['POST'])
+def generate_plan():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "Invalid JSON"}), 400
+
+        app.logger.info(f"Received data: {data}")
+
+        user_id = data.get('user_id')
+        goal = data.get('goal')  # "hypertrophy" or "strength"
+        body_parts = data.get('body_parts')  # List of body parts to focus on
+
+        if not user_id or not goal or not body_parts:
+            return jsonify({"error": "user_id, goal, and body_parts are required"}), 400
+
+        # Dynamically generate the plan name based on selected body parts
+        if len(body_parts) == 1:
+            plan_name = f"{body_parts[0]} Workout"
+        elif len(body_parts) == 2:
+            plan_name = f"{body_parts[0]} and {body_parts[1]} Workout"
+        else:
+            plan_name = f"{', '.join(body_parts[:-1])}, and {body_parts[-1]} Workout"
+
+        # Check if a plan with the same name already exists for the user
+        existing_plan = Plan.query.filter_by(user_id=user_id, plan_name=plan_name).first()
+        if existing_plan:
+            app.logger.warning(f"Duplicate plan detected for user {user_id} with name {plan_name}.")
+            return jsonify({"error": f"A plan named '{plan_name}' already exists."}), 400
+
+        # Predict lifts and reps using the decision tree model
+
+        
+        predictions = predict_lifts(goal, body_parts)
+
+        # Create the Plan
+        new_plan = Plan(
+            user_id=user_id,
+            plan_name=plan_name,
+            plan_type=goal,
+            plan_duration="50"  # Default duration
+        )
+        db.session.add(new_plan)
+        db.session.flush()  # Get the plan ID without committing
+
+        # Add lifts to the Plan
+        for prediction in predictions:
+            lift_names = prediction.get('lift_name').split(';')  # Split semicolon-separated lifts
+            for lift_name in lift_names:
+                lift_name = lift_name.strip()  # Clean up whitespace
+                lift = Lift.query.filter_by(name=lift_name).first()
+
+                if not lift:
+                    app.logger.warning(f"Lift not found: {lift_name}")
+                    continue
+
+                plan_lift = PlanLift(
+                    plan_id=new_plan.id,
+                    lift_id=lift.id,
+                    sets=prediction.get('sets', 3),
+                    reps=prediction.get('reps', 10),
+                )
+                db.session.add(plan_lift)
+
+        db.session.commit()
+
+        return jsonify({"message": "Plan generated successfully", "plan_name": plan_name}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error generating plan: {e}")
+        return jsonify({"error": f"Server error: {e}"}), 500
+
+
+
+
+    
+
+@app.route('/api/delete-plan', methods=['POST'])
+def delete_plan():
+    try:
+        if request.is_json:
+            data = request.get_json()
+            plan_id = data.get('plan_id')
+        else:
+            plan_id = request.form.get('plan_id')
+
+        if not plan_id:
+            return jsonify({"error": "Plan ID is required"}), 400
+
+        # Find plan in the database
+        plan = Plan.query.get(plan_id)
+        if not plan:
+            return jsonify({"error": f"Plan with ID {plan_id} not found"}), 404
+
+        # Deleting related PlanLift records manually incase cascade delete fails - models.py
+        PlanLift.query.filter_by(plan_id=plan_id).delete()
+
+        # Delete plan
+        db.session.delete(plan)
+        db.session.commit()
+
+        return jsonify({"message": f"Plan {plan_id} deleted successfully"}), 200
+
+    except Exception as e:
+        app.logger.error(f"Error deleting plan: {e}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred while deleting the plan"}), 500
+    
 
 
 if __name__ == "__main__":

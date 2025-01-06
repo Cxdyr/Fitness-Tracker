@@ -48,7 +48,6 @@ class PlanLift(db.Model):
     lift_id = db.Column(db.Integer, db.ForeignKey('lifts.id'), nullable=False)
     sets = db.Column(db.Integer, nullable=True, default=3)
     reps = db.Column(db.Integer, nullable=True, default=10)
-    weight_lifted = db.Column(db.Float, nullable=True)
     lift = db.relationship('Lift', backref='plan_lifts') 
 
 

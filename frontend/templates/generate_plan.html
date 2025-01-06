@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Plan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Generate Your Plan!</h1>
+            <a href="{{ url_for('dashboard') }}" class="btn">Home</a>
+            <a href="{{ url_for('my_plans') }}" class="btn">My Plans</a>
+        </nav>
+    </header>
+
+    <main>
+        <form method="POST" action="{{ url_for('generate_plan') }}">
+            <h2>Select Goal:</h2>
+            <label>
+                Hypertrophy training style
+                <input type="radio" name="goal" value="hypertrophy" required>
+            </label>
+            <label>
+                Strength training style
+                <input type="radio" name="goal" value="strength" required>
+            </label>
+
+            <h2>Select targeted body parts for your workout (max of 2):</h2>
+            <label>
+                Legs
+                <input type="checkbox" name="body_parts" value="Legs">
+            </label>
+            <label>
+                Chest
+                <input type="checkbox" name="body_parts" value="Chest">
+            </label>
+            <label>
+                Arms
+                <input type="checkbox" name="body_parts" value="Arms">
+            </label>
+            <label>
+                Arms
+                <input type="checkbox" name="body_parts" value="Back">
+            </label>
+            <label>
+                Full Body
+                <input type="checkbox" name="body_parts" value="Full Body">
+            </label>
+            <br><br>
+            <button type="submit">Generate Plan</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Fitness Friend - by Cody Rabie. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+

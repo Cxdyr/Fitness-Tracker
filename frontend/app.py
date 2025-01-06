@@ -1,12 +1,12 @@
 from datetime import datetime
-import os
-import sys
 from flask import Flask, render_template, redirect, session, url_for, flash, request
 import requests
 from calendar_creation import generate_calendar, get_month_name, generate_dashboard_calendar
+import sys
+import os
+from config import Config
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from common.forms import LoginForm, RegisterForm
-from config import Config 
 
 
 app = Flask(__name__)
@@ -388,8 +388,8 @@ def tracking_history():
         flash("You need to be logged in to access the tracking history.", "danger")
         return redirect(url_for("login"))
     
-    user_id = get_id()
-    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings")
+    user_id = get_id() # Get user id
+    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings") #call trackings api endpoint to recieve tracking history json info
 
     if resp.status_code == 200:
         trackings = resp.json()
@@ -398,6 +398,44 @@ def tracking_history():
         flash("Could not load tracking data from backend.", "danger")
 
     return render_template('tracking_history.html', trackings=trackings)
+
+
+@app.route('/generate_plan', methods=['GET', 'POST'])
+def generate_plan():
+    login_required()
+    if not session.get('user_id'):
+        flash("You need to be logged in to generate a plan.", "danger")
+        return redirect(url_for("login"))
+    
+    user_id = get_id()# Get user id
+
+    if request.method == 'POST':
+        goal = request.form.get('goal')
+        body_parts = request.form.getlist('body_parts')  # Collect all selected body parts from html
+
+        if not goal or not body_parts:
+            flash("Please select a goal and at least one body part.", "danger")
+            return redirect(url_for('generate_plan'))
+
+        payload = { #getting json payload ready for generate plan endpoint
+            "user_id": user_id,
+            "goal": goal,
+            "body_parts": body_parts
+        }
+
+        # Make a POST request to the backend API endpoint generate_plan
+        response = requests.post(f"{BACKEND_URL}/generate_plan", json=payload)
+        if response.status_code == 201:
+            flash("Plan generated successfully!", "success")
+            return redirect(url_for('my_plans')) # Redirect the user to my_plans page to view plans
+        else:
+            error_message = response.json().get("error", "An error occurred while generating the plan.")
+            flash(error_message, "danger")
+
+    return render_template("generate_plan.html")
+
+
+
 
 
 if __name__ == "__main__":
