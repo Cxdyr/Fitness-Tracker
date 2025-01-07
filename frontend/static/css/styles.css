@@ -35,6 +35,11 @@ p {
     margin-bottom: 2rem;
 }
 
+p.planname {
+    color: #f32509;
+}
+
+
 /* Flash Messages Styling */
 .flash-messages {
     margin-bottom: 20px;
@@ -101,6 +106,9 @@ p {
     width: calc(50% - 20px); /* Two cards per row with 20px gap */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
 }
 
 .tracking-card:hover {

@@ -302,6 +302,7 @@ def track_lift_performance(plan_id, lift_id):
         reps_performed = data.get('reps_performed')
         weight_performed = data.get('weight_performed')
         reps_in_reserve = data.get('reps_in_reserve')
+        additional_notes = data.get('additional_notes')
 
         # Validate inputs
         if reps_performed is None or weight_performed is None or reps_in_reserve is None:
@@ -315,7 +316,8 @@ def track_lift_performance(plan_id, lift_id):
             plan_lift_id=plan_lift.id,
             reps_performed=reps_performed,
             weight_performed=weight_performed,
-            reps_in_reserve=reps_in_reserve
+            reps_in_reserve=reps_in_reserve,
+            additional_notes=additional_notes
         )
 
         db.session.add(performance) #Adding new record to LiftPerformance db
@@ -366,6 +368,7 @@ def get_lift_performance(plan_id, lift_id):
     except Exception as e:
         app.logger.error(f"Error retrieving lift performance: {str(e)}")
         return jsonify({"error": "Server error"}), 500
+    
     
 # Retreive all tracking data for a specific user endpoint
 @app.route('/api/users/<int:user_id>/trackings', methods=['GET'])

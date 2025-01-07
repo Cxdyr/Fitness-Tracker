@@ -24,15 +24,15 @@
         <p>
             {% for plan in plans %}
             <div class="plan-bubble">
-                <strong><p>{{ plan.plan_name}}</p></strong>
+                <strong><p class="planname">{{ plan.plan_name}}</p></strong>
                 <p>
-                Notes: {{ plan.plan_type or 'N/A' }}  |  Duration: {{ plan.plan_duration or 'N/A' }} mins
+                <strong>Notes:</strong> {{ plan.plan_type or 'N/A' }}  |  <strong>Duration:</strong> {{ plan.plan_duration or 'N/A' }} mins
                 </p>
     
                 <!-- Display lifts for the plan -->
                 {% if plan.lifts %}
                     {% for lift in plan.lifts %}
-                        <p>{{ lift.lift_name }} - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</p>
+                        <p><strong>{{ lift.lift_name }} </strong> - Sets: {{ lift.sets }}, Reps: {{ lift.reps }}</p>
                     {% endfor %}
                 {% else %}
                     <p>No exercises found for this plan.</p>

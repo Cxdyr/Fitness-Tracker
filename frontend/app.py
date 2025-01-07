@@ -314,11 +314,13 @@ def tracker():
             reps_performed_str = request.form.get(f"reps_performed_{lift_id}", '0')
             weight_performed_str = request.form.get(f"weight_performed_{lift_id}", '0')
             reps_in_reserve_str = request.form.get(f"reps_in_reserve_{lift_id}", '0')
+            additional_notes_str = request.form.get(f"additional_notes_{lift_id}",'0')
 
             try:
                 reps_performed = int(reps_performed_str)
                 weight_performed = float(weight_performed_str)
                 reps_in_reserve = int(reps_in_reserve_str)
+                additional_notes = additional_notes_str
             except ValueError:
                 flash(f"Invalid input for lift '{lift['lift_name']}'. Please enter numeric values.", "danger")
                 tracking_success = False
@@ -329,7 +331,8 @@ def tracker():
             payload = {
                 "reps_performed": reps_performed,
                 "weight_performed": weight_performed,
-                "reps_in_reserve": reps_in_reserve
+                "reps_in_reserve": reps_in_reserve,
+                "additional_notes": additional_notes
             }
             response = requests.post(track_url, json=payload)
 

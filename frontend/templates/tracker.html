@@ -32,7 +32,7 @@
     
         {% if selected_plan %}
             <h2>Track: {{ selected_plan.plan_name }}</h2>
-            <form method="post" action="{{ url_for('tracker') }}">
+            <form method="POST" action="{{ url_for('tracker') }}">
                 <input type="hidden" name="plan_id" value="{{ selected_plan.plan_id }}">
                 <table>
                     <thead>
@@ -41,6 +41,7 @@
                             <th>Average Reps Performed</th>
                             <th>Average Weight Performed (lbs)</th>
                             <th>Average Reps in Reserve</th>
+                            <th>Additional Notes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,6 +56,9 @@
                                 </td>
                                 <td>
                                     <input type="number" name="reps_in_reserve_{{ lift.lift_id }}" min="0" required>
+                                </td>
+                                <td>
+                                    <input type="text" name="additional_notes_{{lift.lift_id}}" maxlength="150"> 
                                 </td>
                             </tr>
                         {% endfor %}
