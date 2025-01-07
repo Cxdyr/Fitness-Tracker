@@ -16,7 +16,20 @@ db.init_app(app)
 def index():
     return "Backend is running!"
 
-
+# Get id endpoint
+@app.route('api/get-id/<string:username>', methods=['GET'])
+def get_id(username):
+    """
+    Gets user id based on username for testing and other
+    """
+    user = User.query.filter_by(username=username).first()
+    if user and user.id:
+        return jsonify({"id": user.id}), 200
+    elif user:
+        return jsonify({"error": "ID not found"}), 404
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
 # Get-name endpoint
 @app.route('/api/get-name/<int:user_id>', methods=['GET'])
 def get_name(user_id):
