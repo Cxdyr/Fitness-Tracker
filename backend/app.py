@@ -30,6 +30,7 @@ def get_id(username):
     else:
         return jsonify({"error": "User not found"}), 404
     
+
 # Get-name endpoint
 @app.route('/api/get-name/<int:user_id>', methods=['GET'])
 def get_name(user_id):
@@ -44,6 +45,17 @@ def get_name(user_id):
         return jsonify({"error": "First name not found"}), 404
     else:
         return jsonify({"error": "User not found"}), 404
+    
+
+# Delete user endpoint
+@app.route('api/users/delete/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": f"User {user.username} has been deleted successfully"}), 200
+    return jsonify({"error": "User not found"}), 404
 
 
 
