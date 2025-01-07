@@ -1,7 +1,8 @@
 from datetime import datetime
+from functools import wraps
 from flask import Flask, render_template, redirect, session, url_for, flash, request
-import requests
 from calendar_creation import generate_calendar, get_month_name, generate_dashboard_calendar
+import requests
 import sys
 import os
 from config import Config
@@ -22,10 +23,14 @@ def get_id():
     return user_id
 
 # Ensure user is logged in for according app routes func
-def login_required():
-    if not session.get("user_id"):
-        flash("You must be logged in to view this page.","danger")
-        return redirect(url_for("login"))
+def login_required(f):
+    @wraps(f) #preserves original functions name and data
+    def decorated_function(*args, **kwargs):  #wrapper intercepts request and enforces login check, returns original functions response if logged in - or redirect if not
+        if not session.get("user_id"):
+            flash("You must be logged in to view this page.", "danger")
+            return redirect(url_for("login"))
+        return f(*args, **kwargs) #if user is logged in continues with original funciton
+    return decorated_function
 
 
 # -------------------------------------------------------------------
@@ -53,13 +58,9 @@ def aboutus():
 
 # Dashboard.html page
 @app.route('/dashboard')
+@login_required
 def dashboard():
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to access the dashboard.", "danger")
-        return redirect(url_for("login"))
     user_id = get_id()
-
     response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
     if response.status_code==200:
         user_firstname = response.json().get('firstname')
@@ -159,12 +160,8 @@ def register():
 
 # Plan.html page
 @app.route('/plan', methods=['GET', 'POST'])
+@login_required
 def plan():
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to access the plan maker.", "danger")
-        return redirect(url_for("login"))
-    
     if request.method == 'POST':
         user_id = get_id()
 
@@ -223,11 +220,8 @@ def plan():
 
 # My_plans.html page
 @app.route('/my_plans')
+@login_required
 def my_plans():
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to access your plans.", "danger")
-        return redirect(url_for("login"))
     user_id = get_id()
 
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
@@ -251,12 +245,8 @@ def my_plans():
 
 # Delete_plan.html page
 @app.route('/delete-plan', methods=['GET', 'POST'])
+@login_required
 def delete_plan():
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to access the delete plans page.", "danger")
-        return redirect(url_for("login"))
-    
     user_id = get_id()
     if not user_id:
         flash("You must be logged in to delete a plan.", "danger")
@@ -292,15 +282,11 @@ def delete_plan():
 
 # Tracker.html page
 @app.route('/tracker', methods=['GET', 'POST'])
+@login_required
 def tracker():
     """
     Allows users to track their workout performance for each lift in a selected plan.
     """
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to access the tracker.", "danger")
-        return redirect(url_for("login"))
-    
     user_id = get_id()
 
     if request.method == 'POST':
@@ -385,15 +371,11 @@ def tracker():
 
 # Tracking_history.html page
 @app.route('/tracking_history')
+@login_required
 def tracking_history():
     """
     Displays all tracking data for the user.
     """
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to access the tracking history.", "danger")
-        return redirect(url_for("login"))
-    
     user_id = get_id() # Get user id
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings") #call trackings api endpoint to recieve tracking history json info
 
@@ -408,12 +390,8 @@ def tracking_history():
 
 # Generate_plan.html page
 @app.route('/generate_plan', methods=['GET', 'POST'])
+@login_required
 def generate_plan():
-    login_required()
-    if not session.get('user_id'):
-        flash("You need to be logged in to generate a plan.", "danger")
-        return redirect(url_for("login"))
-    
     user_id = get_id()# Get user id
 
     if request.method == 'POST':
