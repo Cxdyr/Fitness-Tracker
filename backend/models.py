@@ -31,7 +31,7 @@ class Lift(db.Model):
     __tablename__ = 'lifts'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-
+    targeted_area = db.Column(db.String(30), nullable=False)
     # Relationship to PlanLift 
     plan_lifts = db.relationship('PlanLift', backref='lift', lazy=True, cascade="all, delete-orphan")
 
