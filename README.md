@@ -7,6 +7,7 @@ Create and Track your Lifts with Fitness Friend
 3. [Database Design](https://docs.google.com/document/d/1lxbbgL2HLg1uI_DE7TtSzCqkJ7iwn5i1IMK5zQ28soQ/edit?usp=sharing)
 4. [Plan,Lift,Tracker Functionality](https://docs.google.com/document/d/17s8uYePlKkFkSQraUYe7-mxFrkQ3v9x8L7MCJXYzAN4/edit?usp=sharing)
 5. [WBS](https://docs.google.com/document/d/1ez9xkvQ2hNxDfMBgt6n_tNCwkrcmJvW0id0xeI5v5Yc/edit?usp=sharing)
+6. [EER Diagram](https://drive.google.com/file/d/1mWFj7BT4mUt97KOH7wue2LasjCkdfU_C/view?usp=sharing)
 
 ---
 
