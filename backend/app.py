@@ -17,7 +17,7 @@ def index():
     return "Backend is running!"
 
 # Get id endpoint
-@app.route('api/get-id/<string:username>', methods=['GET'])
+@app.route('/api/get-id/<string:username>', methods=['GET'])
 def get_id(username):
     """
     Gets user id based on username for testing and other
@@ -48,7 +48,7 @@ def get_name(user_id):
     
 
 # Delete user endpoint
-@app.route('api/users/delete/<int:user_id>', methods=['DELETE'])
+@app.route('/api/users/delete/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = User.query.get(user_id)
     if user:
