@@ -32,7 +32,7 @@ def predict_lifts(goal, body_parts):
 
     # Prepare input data for the model
     input_data = pd.DataFrame([{
-        'Goal': 1 if goal == "strength" else 0,
+        'Goal': 1 if goal == "Strength" else 0,
         'Legs': body_parts_input[0],
         'Chest': body_parts_input[1],
         'Arms': body_parts_input[2],

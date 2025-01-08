@@ -381,6 +381,7 @@ def tracking_history():
     """
     user_id = get_id() # Get user id
     resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings") #call trackings api endpoint to recieve tracking history json info
+    resp2 = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
 
     if resp.status_code == 200:
         trackings = resp.json()
@@ -388,7 +389,10 @@ def tracking_history():
         trackings = []
         flash("Could not load tracking data from backend.", "danger")
 
-    return render_template('tracking_history.html', trackings=trackings)
+    if resp2.status_code == 200:
+        first_name = resp2.json().get('firstname')
+
+    return render_template('tracking_history.html', trackings=trackings, first_name=first_name)
 
 
 # Generate_plan.html page
@@ -416,6 +420,9 @@ def generate_plan():
         if response.status_code == 201:
             flash("Plan generated successfully!", "success")
             return redirect(url_for('my_plans')) # Redirect the user to my_plans page to view plans
+        elif response.status_code==400:
+            error_message = response.json().get("error", "Plan already exists")
+            flash(error_message, "danger")
         else:
             error_message = response.json().get("error", "An error occurred while generating the plan.")
             flash(error_message, "danger")
