@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 from sqlalchemy import func
 from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
 from predict import predict_lifts
+from recommend_weight import true_math
 from config import Config
 
 
@@ -303,6 +304,7 @@ def track_lift_performance(plan_id, lift_id):
         weight_performed = data.get('weight_performed')
         reps_in_reserve = data.get('reps_in_reserve')
         additional_notes = data.get('additional_notes')
+        recommended_weight = true_math(weight_performed,reps_in_reserve)
 
         # Validate inputs
         if reps_performed is None or weight_performed is None or reps_in_reserve is None:
@@ -317,7 +319,8 @@ def track_lift_performance(plan_id, lift_id):
             reps_performed=reps_performed,
             weight_performed=weight_performed,
             reps_in_reserve=reps_in_reserve,
-            additional_notes=additional_notes
+            additional_notes=additional_notes,
+            recommended_weight=recommended_weight
         )
 
         db.session.add(performance) #Adding new record to LiftPerformance db
@@ -331,6 +334,8 @@ def track_lift_performance(plan_id, lift_id):
     except Exception as e:
         app.logger.error(f"Error tracking lift performance: {str(e)}")
         return jsonify({"error": "Server error"}), 500
+    
+
 
 
 #Retrive tracking data for display purposes
@@ -360,7 +365,8 @@ def get_lift_performance(plan_id, lift_id):
                 "reps_performed": perf.reps_performed,
                 "weight_performed": perf.weight_performed,
                 "reps_in_reserve": perf.reps_in_reserve,
-                "additional_notes":perf.additional_notes
+                "additional_notes":perf.additional_notes,
+                "future_recommended_weight":perf.future_recommended_weight
             })
 
         return jsonify(performances_data), 200
@@ -400,7 +406,8 @@ def get_user_trackings(user_id):
                         "reps_performed": perf.reps_performed,
                         "weight_performed": perf.weight_performed,
                         "reps_in_reserve": perf.reps_in_reserve,
-                        "additional_notes":perf.additional_notes
+                        "additional_notes":perf.additional_notes,
+                        "recommended_weight":perf.recommended_weight
                     })
                            
         return jsonify(trackings), 200

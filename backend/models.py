@@ -66,4 +66,5 @@ class LiftPerformance(db.Model):
     reps_performed = db.Column(db.Integer, nullable=False)
     weight_performed = db.Column(db.Float, nullable=False)
     reps_in_reserve = db.Column(db.Integer, nullable=False)
+    recommended_weight = db.Column(db.Float, nullable=True)
     additional_notes = db.Column(db.Text, nullable=True)
