@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import wraps
+import os
 from flask import Flask, render_template, redirect, session, url_for, flash, request
 from calendar_creation import generate_calendar, get_month_name, generate_dashboard_calendar
 import requests
@@ -12,6 +13,12 @@ app.config.from_object(Config)
 
 # Backend API base URL
 BACKEND_URL = "http://127.0.0.1:5001/api"
+
+API_KEY = Config.API_KEY
+
+headers = {
+    "X-API-KEY": API_KEY
+}
 
 # Functions
 # Get user id in session func
@@ -58,7 +65,7 @@ def aboutus():
 @login_required
 def dashboard():
     user_id = get_id()
-    response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
+    response = requests.get(f"{BACKEND_URL}/get-name/{user_id}", headers=headers)
     if response.status_code==200:
         user_firstname = response.json().get('firstname')
     else:
@@ -69,7 +76,7 @@ def dashboard():
 
     try:
         # Call the backend API to get tracked dates
-        response = requests.get(f"{BACKEND_URL}/tracked-dates", params={"user_id": user_id, "year": year, "month": month})
+        response = requests.get(f"{BACKEND_URL}/tracked-dates", params={"user_id": user_id, "year": year, "month": month}, headers=headers)
         response.raise_for_status()  # Raise an error for non-200 responses
         tracked_dates = response.json().get("tracked_dates", [])
         tracked_days = [datetime.strptime(date, "%Y-%m-%d").day for date in tracked_dates]  # Extract day numbers
@@ -101,7 +108,7 @@ def login():
             "username": form.username.data,
             "password": form.password.data,
         }
-        response = requests.post(f"{BACKEND_URL}/login", json=login_data)
+        response = requests.post(f"{BACKEND_URL}/login", json=login_data, headers=headers)
 
         if response.status_code == 200:
             # Extract user_id from the API response
@@ -135,7 +142,7 @@ def reset_password():
         }
         
         # Send reset data to backend
-        response = requests.post(f"{BACKEND_URL}/reset-password", json=reset_data)
+        response = requests.post(f"{BACKEND_URL}/reset-password", json=reset_data, headers=headers)
         
         if response.status_code == 200:
             return redirect(url_for('login'))
@@ -160,7 +167,7 @@ def register():
             "goal": form.goal.data,
             "password": form.password.data,
         }
-        response = requests.post(f"{BACKEND_URL}/register", json=user_data)
+        response = requests.post(f"{BACKEND_URL}/register", json=user_data, headers=headers)
 
         try:
             response_data = response.json()  # Try to parse JSON response
@@ -216,7 +223,7 @@ def plan():
         }
 
         # Post to the backend to create the plan
-        response = requests.post(f"{BACKEND_URL}/plans", json=payload)
+        response = requests.post(f"{BACKEND_URL}/plans", json=payload, headers=headers)
         if response.status_code == 201:
             flash("Plan created successfully!", "success")
             return redirect(url_for('my_plans'))
@@ -227,7 +234,7 @@ def plan():
 
     else:
         # GET request: render the plan creation form
-        lifts_resp = requests.get(f"{BACKEND_URL}/lifts")
+        lifts_resp = requests.get(f"{BACKEND_URL}/lifts", headers=headers)
         if lifts_resp.status_code == 200:
             lifts = lifts_resp.json()
         else:
@@ -243,9 +250,9 @@ def plan():
 def my_plans():
     user_id = get_id()
 
-    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans", headers=headers)
 
-    response = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
+    response = requests.get(f"{BACKEND_URL}/get-name/{user_id}", headers=headers)
     if response.status_code==200:
         user_firstname = response.json().get('firstname')
     else:
@@ -279,7 +286,7 @@ def delete_plan():
 
         # Call the backend delete-plan API
         delete_url = f"{BACKEND_URL}/delete-plan"
-        response = requests.post(delete_url, json={"plan_id": plan_id})
+        response = requests.post(delete_url, json={"plan_id": plan_id},headers=headers)
 
         if response.status_code == 200:
             flash("Plan deleted successfully.", "success")
@@ -289,7 +296,7 @@ def delete_plan():
         return redirect(url_for('my_plans'))  
 
     # Fetch the plans for dropdown menu
-    plans_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+    plans_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans",headers=headers)
     if plans_resp.status_code == 200:
         plans = plans_resp.json()
     else:
@@ -315,7 +322,7 @@ def tracker():
             return redirect(url_for('tracker'))
 
         # Fetch the selected plan's details
-        plan_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+        plan_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans",headers=headers)
         if plan_resp.status_code != 200:
             flash("Could not load plan details from backend.", "danger")
             return redirect(url_for('tracker'))
@@ -353,7 +360,7 @@ def tracker():
                 "reps_in_reserve": reps_in_reserve,
                 "additional_notes": additional_notes
             }
-            response = requests.post(track_url, json=payload)
+            response = requests.post(track_url, json=payload,headers=headers)
 
             if response.status_code != 201:
                 error_message = response.json().get('error', 'Error tracking performance.')
@@ -369,7 +376,7 @@ def tracker():
 
     else:
         # GET request: render the tracking form
-        plans_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+        plans_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans",headers=headers)
         if plans_resp.status_code == 200:
             user_plans = plans_resp.json()
         else:
@@ -380,7 +387,7 @@ def tracker():
         plan_id = request.args.get('plan_id')
         if plan_id:
             # Fetch detailed plan information if plan_id is provided
-            plan_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans")
+            plan_resp = requests.get(f"{BACKEND_URL}/users/{user_id}/plans",headers=headers)
             if plan_resp.status_code == 200:
                 plans = plan_resp.json()
                 selected_plan = next((plan for plan in plans if str(plan['plan_id']) == plan_id), None)
@@ -399,8 +406,8 @@ def tracking_history():
     Displays all tracking data for the user.
     """
     user_id = get_id() # Get user id
-    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings") #call trackings api endpoint to recieve tracking history json info
-    resp2 = requests.get(f"{BACKEND_URL}/get-name/{user_id}")
+    resp = requests.get(f"{BACKEND_URL}/users/{user_id}/trackings",headers=headers) #call trackings api endpoint to recieve tracking history json info
+    resp2 = requests.get(f"{BACKEND_URL}/get-name/{user_id}",headers=headers)
 
     if resp.status_code == 200:
         trackings = resp.json()
@@ -435,7 +442,7 @@ def generate_plan():
         }
 
         # Make a POST request to the backend API endpoint generate_plan
-        response = requests.post(f"{BACKEND_URL}/generate_plan", json=payload)
+        response = requests.post(f"{BACKEND_URL}/generate_plan", json=payload,headers=headers)
         if response.status_code == 201:
             flash("Plan generated successfully!", "success")
             return redirect(url_for('my_plans')) # Redirect the user to my_plans page to view plans

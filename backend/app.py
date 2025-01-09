@@ -1,6 +1,7 @@
 from datetime import datetime
+from dotenv import load_dotenv
 from flask_bcrypt import bcrypt
-from flask import Flask, jsonify, logging, request
+from flask import Flask, abort, jsonify, request
 from sqlalchemy import func
 from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
 from predict import predict_lifts
@@ -11,6 +12,16 @@ from config import Config
 app = Flask(__name__)
 app.config.from_object(Config)
 db.init_app(app)
+
+load_dotenv()
+
+
+#  validate API key
+@app.before_request
+def validate_api_key():
+    api_key = request.headers.get('X-API-KEY') #From frontend to retrieve api key from headers
+    if api_key != Config.API_KEY: #if api key is wrong, we cannot perform api requests
+        abort(403, "Invalid API Key") 
 
 # backend index route
 @app.route('/')
