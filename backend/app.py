@@ -7,6 +7,7 @@ from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
 from predict import predict_lifts
 from recommend_weight import true_math
 from config import Config
+from email_validator import validate_email
 
 
 app = Flask(__name__)
@@ -22,6 +23,7 @@ def validate_api_key():
     api_key = request.headers.get('X-API-KEY') #From frontend to retrieve api key from headers
     if api_key != Config.API_KEY: #if api key is wrong, we cannot perform api requests
         abort(403, "Invalid API Key") 
+
 
 # backend index route
 @app.route('/')
@@ -62,12 +64,55 @@ def get_name(user_id):
 # Delete user endpoint
 @app.route('/api/users/delete/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
-    user = User.query.get(user_id)
-    if user:
-        db.session.delete(user)
+    try:
+        user = db.session.get(User, user_id)
+        if user:
+            db.session.delete(user)
+            db.session.commit()
+            return jsonify({"message": f"User {user.username} has been deleted successfully"}), 200
+        else:
+            return jsonify({"error": "User not found"}), 404
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"An error occured: {str(e)}"}),500
+
+
+
+# End point for changing user email 
+@app.route('/api/change-email', methods=['POST'])
+def change_email():
+    """
+    Changes user email, first ensuring it is real, then ensuring it doesnt exist in the db, then changing and commiting to users db
+    """
+    try:
+        data = request.get_json()
+        user_id = data.get("user_id")
+        new_email = data.get("email")
+  
+
+        if not new_email:
+            return jsonify({"error": "New email is required"}), 400 # If no input
+        
+        if not validate_email(new_email):
+            return jsonify({"error": "Email format is incorrect"}), 400 # If incorrect format
+        
+        existing_user = User.query.filter_by(email=new_email).first()
+        if existing_user:
+            return jsonify({"error": "User with existing email already exists, please try a different email"}), 409 # If user email exists attached to other user
+        
+        user = db.session.get(User, user_id)
+        if not user:
+            return jsonify({"error": "User not found"}),404
+        
+        user.email = new_email
         db.session.commit()
-        return jsonify({"message": f"User {user.username} has been deleted successfully"}), 200
-    return jsonify({"error": "User not found"}), 404
+        return jsonify({"message": "Successfully updated email"}), 200 # Successfully changed user email 
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"An error occured: {str(e)}"}),500
+
+
 
 
 
