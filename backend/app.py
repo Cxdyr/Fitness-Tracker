@@ -250,6 +250,28 @@ def check_reset_pw():
         return jsonify({"error":str(e)}), 500
     
 
+# End point for recieving user data for settings
+@app.route('/api/settings/user-info/<int:user_id>', methods=['GET'])
+def get_settings_info(user_id):
+
+    user = db.session.get(User, user_id)
+    if user:
+        user_info = {
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "username": user.username,
+            "date_of_birth": user.date_of_birth,
+            "email": user.email,
+            "creation_date": user.creation_date,
+            "goal": user.goal
+        }
+        return jsonify(user_info), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+    
+
+
+
 
 
 # ----- PLAN CREATION AND VIEWING ENDPOINTS  --------

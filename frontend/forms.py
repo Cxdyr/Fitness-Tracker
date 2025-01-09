@@ -25,6 +25,8 @@ class ResetForm(FlaskForm):
     desired_password = StringField('Desired Password', validators=[DataRequired(), Length(min=6, max=30)])
     submit = SubmitField('Reset Password')
 
+
+
 class PlanForm(FlaskForm):
     plan_name = StringField('Plan Name', validators=[DataRequired()])
     plan_type = StringField('Plan Type')

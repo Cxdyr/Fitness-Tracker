@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Friend - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>{{user.first_name}}'s Settings</h1>
+        <p>View and edit your personal info</p>
+    </header>
+
+            <div class="user-info">
+                <p><strong>First Name:</strong> {{ user.first_name }}</p>
+                <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Username: </strong> {{ user.username }}</p>
+                <p><strong>Creation date: </strong>{{ user.creation_date }}</p>
+                <p><strong>Date of Birth:</strong> {{ user.date_of_birth }}</p>
+                <p><strong>Goal:</strong> {{ user.goal }}</p>
+            </div>
+
+
+    <div class="buttons">
+
+        <form action="{{ url_for('settings') }}" method="POST">
+            <label for="email">New Email:</label>
+            <input type="email" id="email" name="email" required>
+            <button type="submit">Change email</button>
+        </form>
+
+        <!-- Link to reset password  -->
+        <a href="{{ url_for('reset_password') }}" class="btn"> Reset password</a>
+
+
+        <!-- Link to dashboard -->
+         <a href="{{url_for('dashboard')}}" class="btn">Home</a>
+
+        <!-- Link to logout -->
+         <a href="{{ url_for('logout')}}" class="btn>">Logout</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Fitness Friend - by Cody Rabie. All rights reserved. </p>
+    </footer>
+</body>
+</html>

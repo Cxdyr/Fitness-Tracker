@@ -184,6 +184,41 @@ def register():
     return render_template("register.html", form=form)
 
 
+# Settings.html page
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    user_id = get_id()
+    if request.method=='POST':
+        new_email = request.form.get('email')
+        data = {
+            "user_id": user_id,
+            "email": new_email
+        }
+        if not new_email:
+            flash("Email is required.", "error")
+            return redirect(url_for('settings'))
+        else:
+            response = requests.post(f"{BACKEND_URL}/change-email", json=data, headers=headers)
+            if response.status_code==409:
+                flash("Email is already attached to another user account.", "error")
+                return redirect(url_for('settings'))
+            elif response.status_code==400:
+                flash("Email is missing or format is incorrect", "error")
+                return redirect(url_for('settings'))
+            else:
+                flash("Successfully changed user email")
+
+
+    
+    response = requests.get(f"{BACKEND_URL}/settings/user-info/{user_id}", headers=headers)
+    if response.status_code==200:
+        user_data = response.json()
+        return render_template('settings.html', user=user_data)
+    else:
+        return "Error fetching user data",404 
+
+
 # Plan.html page
 @app.route('/plan', methods=['GET', 'POST'])
 @login_required

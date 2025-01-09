@@ -1,8 +1,6 @@
 def round_to_nearest_fifth(val):
     return round(val/0.05) * 0.05
 
-
-
 def calculate_recommendation(weight_performed, reps_in_reserve):
     if reps_in_reserve<= 2:
         recommended_weight = weight_performed
