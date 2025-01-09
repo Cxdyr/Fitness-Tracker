@@ -3,11 +3,8 @@ from functools import wraps
 from flask import Flask, render_template, redirect, session, url_for, flash, request
 from calendar_creation import generate_calendar, get_month_name, generate_dashboard_calendar
 import requests
-import sys
-import os
 from config import Config
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from common.forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, ResetForm
 
 
 app = Flask(__name__)
@@ -126,6 +123,28 @@ def logout():
     flash("You have been logged out.", "info")
     return redirect(url_for('login'))
 
+
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    form = ResetForm()
+    
+    if form.validate_on_submit():
+        reset_data = {
+            "email": form.email.data,
+            "desired_password": form.desired_password.data
+        }
+        
+        # Send reset data to backend
+        response = requests.post(f"{BACKEND_URL}/reset-password", json=reset_data)
+        
+        if response.status_code == 200:
+            return redirect(url_for('login'))
+        else:
+            return redirect(url_for('reset_password'))
+
+    return render_template("reset_password.html", form=form)
+
+    
 
 # Register.html page
 @app.route('/register', methods=['GET', 'POST'])

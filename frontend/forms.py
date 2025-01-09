@@ -1,9 +1,7 @@
-import bcrypt
 from flask import current_app
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, DateField, ValidationError
 from wtforms.validators import DataRequired, Email, Length, EqualTo
-from backend.models import User
 
 class RegisterForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
@@ -21,6 +19,11 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Login')
+
+class ResetForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired()])
+    desired_password = StringField('Desired Password', validators=[DataRequired(), Length(min=6, max=30)])
+    submit = SubmitField('Reset Password')
 
 class PlanForm(FlaskForm):
     plan_name = StringField('Plan Name', validators=[DataRequired()])

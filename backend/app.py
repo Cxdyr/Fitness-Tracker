@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask_bcrypt import bcrypt
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, logging, request
 from sqlalchemy import func
 from models import LiftPerformance, db, bcrypt, User, Lift, Plan, PlanLift
 from predict import predict_lifts
@@ -163,6 +163,36 @@ def api_login():
     except Exception as e:
         app.logger.error(f"Error in /api/login: {str(e)}")
         return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
+
+# End point for reset password
+@app.route('/api/reset-password', methods=['POST'])
+def check_reset_pw():
+    """
+    Checks user input (email and dob) to make sure both match a database record - if so we return success which is handled in frontend,
+    if wrong return error code that prevents user from changing password
+    """
+    try:
+        data = request.get_json()
+        if not data or not data.get('email') or not data.get('desired_password'):
+            return jsonify({"error": "Missing data"}), 400
+        
+        #finding the user by email
+        user = User.query.filter_by(email=data['email']).first()
+        if not user:
+            return jsonify({"error": "Invalid email"}),401
+        
+        
+        password_hash = bcrypt.generate_password_hash(data['desired_password']).decode('utf-8')
+        user.password_hash = password_hash
+
+        db.session.commit()
+        return jsonify({"message": "Success, your password has been reset"}), 200
+    
+    
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500
+    
 
 
 

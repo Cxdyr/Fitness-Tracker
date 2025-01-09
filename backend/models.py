@@ -26,6 +26,7 @@ class User(db.Model):
 
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password_hash, password)
+    
 
 class Lift(db.Model):
     __tablename__ = 'lifts'

@@ -11,6 +11,8 @@
     <h1> Login </h1>
     <p>Don't have an account?</p>
     <a href="{{url_for('register')}}"> Register </a>
+    <p> Forgot your password?</p>
+    <a href="{{url_for('reset_password')}}" class="button"> Reset password</a>
 </header>
                 <form method="POST" class="mt-4">
                     {{ form.hidden_tag() }}
@@ -21,6 +23,7 @@
                     
                     <button type="submit" class="btn btn-primary w-100 mt-2">{{ form.submit.label }}</button>
                 </form>
+
     
     <footer>
         <p>&copy; 2024 Fitness Friend - by Cody Rabie. All rights reserved. </p>
