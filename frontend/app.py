@@ -390,6 +390,7 @@ def tracker():
             # Send POST request to track performance
             track_url = f"{BACKEND_URL}/plans/{plan_id}/lifts/{lift_id}/track"
             payload = {
+                "user_id": user_id,
                 "reps_performed": reps_performed,
                 "weight_performed": weight_performed,
                 "reps_in_reserve": reps_in_reserve,
@@ -491,6 +492,43 @@ def generate_plan():
     return render_template("generate_plan.html")
 
 
+@app.route('/advanced_tracking', methods=['GET', 'POST'])
+def advanced_tracking():
+    user_id = get_id()
+    
+    response = requests.get(f"{BACKEND_URL}/lifts", headers=headers)
+    if response.status_code == 200:
+        lift_info = response.json()
+    else:
+        error_message = response.json().get('error', 'Error getting lift information')
+        flash(error_message, "danger")
+        lift_info = []
+
+    lift_name = None
+    real_record = None
+    max_weight = 0
+    avg_weight = 0
+
+    if request.method == 'POST':
+        lift_name = request.form.get('lift_name')
+
+        if not lift_name:
+            flash('Please select a lift to track', 'danger')
+        else:
+            performance_response = requests.get(f"{BACKEND_URL}/users/{user_id}/lifts/{lift_name}/performance", headers=headers)
+            if performance_response.status_code == 200:
+                real_record = performance_response.json().get('performance_data', [])
+                max_weight = max(real_record, key=lambda x: x['weight_performed'])
+                avg_weight = round(sum(r['weight_performed'] for r in real_record) / len(real_record), 2) if real_record else 0
+
+            else:
+                flash('Could not retrieve performance data, make sure you have tracked this lift', 'danger')
+
+    return render_template("advanced_tracking.html", lift_info=lift_info, real_record=real_record, max_weight = max_weight, avg_weight=avg_weight, lift_name=lift_name)
+
+
+
+        
 
 
 

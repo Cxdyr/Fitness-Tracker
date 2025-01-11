@@ -43,37 +43,17 @@ p.planname {
 /* Flash Messages Styling */
 .flash-messages {
     margin-bottom: 20px;
+    text-align: center;
 }
 
-.flash-message {
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-weight: bold;
+.flash-success {
+    color: green;
+    font-size: 18px;
 }
 
-.flash-message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border-left: 5px solid #28a745;
-}
-
-.flash-message.danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-left: 5px solid #dc3545;
-}
-
-.flash-message.warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border-left: 5px solid #ffc107;
-}
-
-.flash-message.info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border-left: 5px solid #17a2b8;
+.flash-danger {
+    color: red;
+    font-size: 18px;
 }
 
 /* Tracking Date Styling */
@@ -200,7 +180,37 @@ a:hover {
 }
 
 
+/* Lift Entries */
+.tracked-lifts {
+    margin-top: 20px;
+}
 
+.lift-entry {
+    background-color: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.lift-entry p {
+    margin: 5px 0;
+}
+
+.performance-data {
+    background-color: #2e2e2e; /* Dark grey background */
+    color: white; /* Text color for contrast */
+    padding: 20px; /* Padding around the content */
+    margin-top: 20px; /* Add some space from other elements */
+    border-radius: 10px; /* Optional: rounded corners */
+    max-width: 900px; /* Optional: limit the width */
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
+}
+
+.lift-entry strong {
+    font-weight: bold;
+}
 /* Form Container */
 form {
     background-color: #2c2c2c;
@@ -241,6 +251,7 @@ body, h1, p, div {
     padding: 0;
     box-sizing: border-box;
 }
+
 
 /* Body Styling */
 body {

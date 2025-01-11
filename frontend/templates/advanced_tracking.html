@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Tracking - Fitness Friend</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Advanced Tracking Data</h1>
+    </header>
+    <div class="buttons">
+        <a href="{{ url_for('tracker') }}" class="btn">Tracker</a>
+    </div>
+    <form method="POST">
+        <label for="lift_name">Select a Lift:</label>
+        <select name="lift_name" id="lift_name">
+            <option value="" disabled selected>Select Lift</option>
+            {% for lift in lift_info %}
+                <option value="{{ lift.name }}">{{ lift.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">View metrics</button>
+    </form>
+    
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <p class="flash-{{ category }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+    
+    <!-- Displaying Performance Data -->
+    {% if real_record %}
+        <div class="performance-data">
+            <h2>Data for {{ lift_name }}</h2>
+    
+            <!-- Max Weight Section -->
+            <h3>Max {{ lift_name }} Weight:</h3>
+            {% if max_weight != 0 %}
+                <p>{{ max_weight['weight_performed'] }} kg</p>
+                <p>Date: {{ max_weight['date'] }}</p>
+            {% else %}
+                <p>No data available for max weight.</p>
+            {% endif %}
+            <br>
+            
+            <!-- Average Weight Section -->
+            <h3>Avg {{ lift_name }} Weight:</h3>
+            {% if avg_weight != 0 %}
+                <p>{{ avg_weight }} lbs</p>
+            {% else %}
+                <p>No data available for average weight.</p>
+            {% endif %}
+            <br>
+    
+            <!-- All Tracked Lifts -->
+            <h3>Tracked Lifts:</h3>
+                {% for record in real_record %}
+                        <p><strong>Date:</strong> {{ record.date }}</p>
+                        <p><strong>Weight Lifted:</strong> {{ record.weight_performed }} lbs</p>
+                        <p><strong>Reps Performed:</strong> {{ record.reps_performed }}</p>
+                        <br>
+                {% endfor %}
+                {% else %}
+            {% endif %}
+        </div>
+        <footer>
+            <p>&copy; 2025 Fitness Friend - by Cody Rabie. All rights reserved. </p>
+        </footer>
+</body>
+</html>

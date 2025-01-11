@@ -63,9 +63,14 @@ class LiftPerformance(db.Model):
     __tablename__ = 'lift_performances'
     id = db.Column(db.Integer, primary_key=True)
     plan_lift_id = db.Column(db.Integer, db.ForeignKey('plan_lifts.id'), nullable=False)
+    lift_id = db.Column(db.Integer, db.ForeignKey('lifts.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     date = db.Column(db.DateTime, server_default=func.now(), nullable=False)
     reps_performed = db.Column(db.Integer, nullable=False)
     weight_performed = db.Column(db.Float, nullable=False)
     reps_in_reserve = db.Column(db.Integer, nullable=False)
     recommended_weight = db.Column(db.Float, nullable=True)
     additional_notes = db.Column(db.Text, nullable=True)
+
+    user = db.relationship('User', backref='lift_performances', lazy=True)
+    lift = db.relationship('Lift', backref='lifts',lazy=True)

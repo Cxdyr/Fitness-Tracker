@@ -294,6 +294,7 @@ def create_plan():
         plan_duration = data.get('plan_duration')
         lifts_data = data.get('lifts', [])
 
+
         if not user_id or not plan_name:
             return jsonify({"error": "user_id and plan_name are required"}), 400
 
@@ -399,6 +400,12 @@ def track_lift_performance(plan_id, lift_id):
         plan = db.session.get(Plan, plan_id)
         if not plan:
             return jsonify({"error": "Plan not found"}), 404
+        
+
+        # Validate the existence of the lift
+        lift = db.session.get(Lift, lift_id)
+        if not lift:
+            return jsonify({"error": "Lift not found"}), 404
 
         plan_lift = PlanLift.query.filter_by(plan_id=plan_id, lift_id=lift_id).first()
         if not plan_lift:
@@ -408,6 +415,8 @@ def track_lift_performance(plan_id, lift_id):
         if not data:
             return jsonify({"error": "No input data provided"}), 400
 
+
+        user_id = data.get('user_id')
         reps_performed = data.get('reps_performed')
         weight_performed = data.get('weight_performed')
         reps_in_reserve = data.get('reps_in_reserve')
@@ -424,6 +433,8 @@ def track_lift_performance(plan_id, lift_id):
         # Create a new LiftPerformance record
         performance = LiftPerformance(
             plan_lift_id=plan_lift.id,
+            lift_id = lift.id,
+            user_id = user_id,
             reps_performed=reps_performed,
             weight_performed=weight_performed,
             reps_in_reserve=reps_in_reserve,
@@ -524,6 +535,35 @@ def get_user_trackings(user_id):
         app.logger.error(f"Error retrieving user trackings: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
+
+# Get all performance data for a specific user and lift
+@app.route('/api/users/<int:user_id>/lifts/<string:lift_name>/performance', methods=['GET'])
+def get_performance_data(user_id, lift_name):
+    """
+    Get performance data for a specific user and lift.
+    """
+    # Get the lift ID from the name
+    lift = Lift.query.filter_by(name=lift_name).first()
+    if not lift:
+        return jsonify({"error": "Lift not found"}), 404
+
+    # Look through performance data by user and lift, to find all tracked logs of this lift for this user
+    performance_data = LiftPerformance.query.filter_by(user_id=user_id, lift_id=lift.id).all()
+
+    if not performance_data:
+        return jsonify({"performance_data": []}), 205 #if user has no tracked logs for this lift
+
+    # Format the data to include only the necessary fields
+    performance_data_formatted = [
+        {
+            "date": record.date.strftime('%Y-%m-%d'),  # date as string
+            "weight_performed": record.weight_performed,
+            "reps_performed": record.reps_performed
+        }
+        for record in performance_data
+    ]
+
+    return jsonify({"performance_data": performance_data_formatted}), 200 #Success 
 
 
 #---------GENERATE/REMOVE PLAN ENDPOINTS ------------
