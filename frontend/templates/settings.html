@@ -12,7 +12,7 @@
         <p>View and edit your personal info</p>
     </header>
 
-            <div class="user-info">
+            <div class="performance-data">
                 <p><strong>First Name:</strong> {{ user.first_name }}</p>
                 <p><strong>Last Name:</strong> {{ user.last_name }}</p>
                 <p><strong>Email:</strong> {{ user.email }}</p>
@@ -41,6 +41,16 @@
         <!-- Link to logout -->
          <a href="{{ url_for('logout')}}" class="btn>">Logout</a>
     </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <p class="flash-{{ category }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
 
     <footer>
         <p>&copy; 2025 Fitness Friend - by Cody Rabie. All rights reserved. </p>

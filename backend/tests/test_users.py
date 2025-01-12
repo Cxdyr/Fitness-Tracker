@@ -66,7 +66,7 @@ class TestUsersAPI(unittest.TestCase):
         """Test user email change endpoint"""
 
         new_email_info = {
-            "user_id": 5,
+            "user_id": 5, # change to match the test user in testing session
             "email": "tester_new@test.com"
         }
         success = 200 #Expected response
@@ -79,7 +79,7 @@ class TestUsersAPI(unittest.TestCase):
 
     def test_04_delete_user(self):
         """Test delete user"""
-        user_id = 5 #change to match test user testing session
+        user_id = 5 #change to match test user in testing session
         response = requests.delete(f"{BASE_URL}/users/delete/{user_id}", headers=headers)
         self.assertEqual(response.status_code, 200)
         print(f"Delete user response status: {response.status_code}")

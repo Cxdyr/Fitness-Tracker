@@ -23,7 +23,15 @@
                     
                     <button type="submit" class="btn btn-primary w-100 mt-2">{{ form.submit.label }}</button>
                 </form>
-
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <p class="flash-{{ category }}">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
     
     <footer>
         <p>&copy; 2025 Fitness Friend - by Cody Rabie. All rights reserved. </p>
