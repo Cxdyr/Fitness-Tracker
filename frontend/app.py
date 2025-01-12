@@ -527,6 +527,5 @@ def advanced_tracking():
     return render_template("advanced_tracking.html", lift_info=lift_info, real_record=real_record, max_weight = max_weight, avg_weight=avg_weight, lift_name=lift_name)
 
 
-
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)

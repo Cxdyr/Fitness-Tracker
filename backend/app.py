@@ -20,21 +20,70 @@ load_dotenv()
 #  validate API key
 @app.before_request
 def validate_api_key():
+    """
+    Middleware: Validates the API key in the 'X-API-KEY' request header from frontend or other call locations
+    ---
+    headers:
+      X-API-KEY:
+        description: API key required to access endpoints
+        required: true
+        type: string
+    responses:
+      403:
+        description: Invalid API key
+    """
     api_key = request.headers.get('X-API-KEY') #From frontend to retrieve api key from headers
     if api_key != Config.API_KEY: #if api key is wrong, we cannot perform api requests
         abort(403, "Invalid API Key") 
 
 
-# backend index route
+# backend health check 
 @app.route('/')
 def index():
+    """
+    GET /
+    ---
+    summary: Health check for the backend
+    description: Returns backend is running.
+    responses:
+      200:
+        description: Backend is running
+        examples:
+          text: "Backend is running!"
+    """
     return "Backend is running!"
+
+
+#-------- BASIC ENDPOINTS --------------
 
 # Get id endpoint
 @app.route('/api/get-id/<string:username>', methods=['GET'])
 def get_id(username):
     """
-    Gets user id based on username for testing and other
+    GET /api/get-id/{username}
+    ---
+    summary: Retrieve user ID by username
+    description: Retrieves the user ID that is associated with the provided username.
+    parameters:
+      - in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        description: The username of the user
+    responses:
+      200:
+        description: Successfully retrieved user ID
+        content:
+          application/json:
+            example: {"id": 12345}
+      404:
+        description: User or ID not found
+        content:
+          application/json:
+            examples:
+              user_not_found: {"error": "User not found"}
+              id_not_found: {"error": "ID not found"}
     """
     user = User.query.filter_by(username=username).first()
     if user and user.id:
@@ -49,8 +98,30 @@ def get_id(username):
 @app.route('/api/get-name/<int:user_id>', methods=['GET'])
 def get_name(user_id):
     """
-    Gets user first_name for display purposes by searching users db by user_id (passed from frontend)
-    and finding user.first_name before returning in json format to frontend.
+    GET /api/get-name/{user_id}
+    ---
+    summary: Retrieve user's first name by user ID
+    description: Returns the first name of the user associated with the provided user ID.
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+        description: The unique ID of the user
+    responses:
+      200:
+        description: Successfully retrieved user's first name
+        content:
+          application/json:
+            example: {"firstname": "John"}
+      404:
+        description: User or first name not found
+        content:
+          application/json:
+            examples:
+              user_not_found: {"error": "User not found"}
+              first_name_not_found: {"error": "First name not found"}
     """
     user = User.query.filter_by(id=user_id).first()
     if user and user.first_name:
@@ -64,6 +135,35 @@ def get_name(user_id):
 # Delete user endpoint
 @app.route('/api/users/delete/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
+    """
+    DELETE /api/users/delete/{user_id}
+    ---
+    summary: Delete a user by user ID
+    description: Deletes a user from the database based on their unique ID.
+    parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          type: integer
+        description: The unique ID of the user to delete
+    responses:
+      200:
+        description: Successfully deleted user
+        content:
+          application/json:
+            example: {"message": "User john_doe has been deleted successfully"}
+      404:
+        description: User not found
+        content:
+          application/json:
+            example: {"error": "User not found"}
+      500:
+        description: Internal server error
+        content:
+          application/json:
+            example: {"error": "An error occurred: <error details>"}
+    """
     try:
         user = db.session.get(User, user_id)
         if user:
@@ -82,7 +182,53 @@ def delete_user(user_id):
 @app.route('/api/change-email', methods=['POST'])
 def change_email():
     """
-    Changes user email, first ensuring it is real, then ensuring it doesnt exist in the db, then changing and commiting to users db
+    POST /api/change-email
+    ---
+    summary: Update user's email
+    description: Changes a user's email after validating the input, ensuring the email does not already exist in database, then updating the user's record.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                description: The ID of the user
+                example: 123
+              email:
+                type: string
+                description: The new email address
+                example: "new_email@example.com"
+    responses:
+      200:
+        description: Successfully updated email
+        content:
+          application/json:
+            example: {"message": "Successfully updated email"}
+      400:
+        description: Invalid input (missing email or bad format)
+        content:
+          application/json:
+            examples:
+              missing_email: {"error": "New email is required"}
+              invalid_format: {"error": "Email format is incorrect"}
+      404:
+        description: User not found
+        content:
+          application/json:
+            example: {"error": "User not found"}
+      409:
+        description: Email already exists
+        content:
+          application/json:
+            example: {"error": "User with existing email already exists, please try a different email"}
+      500:
+        description: Internal server error
+        content:
+          application/json:
+            example: {"error": "An error occurred: <error details>"}
     """
     try:
         data = request.get_json()
@@ -113,16 +259,54 @@ def change_email():
         return jsonify({"error": f"An error occured: {str(e)}"}),500
 
 
-
-
-
-
 # End point for getting user tracked dates for calander display on dashboard
 @app.route('/api/tracked-dates', methods=['GET'])
 def get_tracked_dates_api():
     """
-    Retreives user, current year, and month. Extracts tracked dates from users LiftPerformance table and populates tracked_dates_list
-    before ordering and returning data in json format for frontend retrieval and display.
+    GET /api/tracked-dates
+    ---
+    summary: Retrieve user's tracked dates
+    description: Retrieves the dates a user has tracked performance for a specific year and month for calendar display
+    parameters:
+      - in: query
+        name: user_id
+        required: true
+        schema:
+          type: integer
+        description: The ID of the user
+        example: 123
+      - in: query
+        name: year
+        required: true
+        schema:
+          type: integer
+        description: The year to retrieve tracked dates for
+        example: 2025
+      - in: query
+        name: month
+        required: true
+        schema:
+          type: integer
+        description: The month to retrieve tracked dates for
+        example: 1
+    responses:
+      200:
+        description: Successfully retrieved tracked dates
+        content:
+          application/json:
+            example: {"tracked_dates": ["2025-01-01", "2025-01-05", "2025-01-15"]}
+      400:
+        description: Missing or invalid parameters
+        content:
+          application/json:
+            examples:
+              missing_user_id: {"error": "User ID is required"}
+              missing_year_month: {"error": "Year and Month are required"}
+      500:
+        description: Internal server error
+        content:
+          application/json:
+            example: {"error": "An error occurred: <error details>"}
     """
     try: # Gets user id, year, and month info
         user_id = request.args.get('user_id', type=int)
@@ -153,7 +337,11 @@ def get_tracked_dates_api():
         return jsonify({"error": str(e)}), 500
 
     
+
+
 # ----- BASIC AUTH ENDPOINTS (REGISTER/LOGIN) --------
+
+
 
 # End point for user registration
 @app.route('/api/register', methods=['POST'])
@@ -454,8 +642,6 @@ def track_lift_performance(plan_id, lift_id):
         app.logger.error(f"Error tracking lift performance: {str(e)}")
         return jsonify({"error": "Server error"}), 500
     
-
-
 
 #Retrive tracking data for display purposes
 @app.route('/api/plans/<int:plan_id>/lifts/<int:lift_id>/track', methods=['GET'])
