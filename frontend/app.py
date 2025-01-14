@@ -1,6 +1,5 @@
 from datetime import datetime
 from functools import wraps
-import os
 from flask import Flask, render_template, redirect, session, url_for, flash, request
 from calendar_creation import generate_calendar, get_month_name, generate_dashboard_calendar
 import requests

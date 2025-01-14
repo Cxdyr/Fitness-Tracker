@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from decision_tree import DecisionTreeModel
 
-data_path = '../data/trainingdata.csv'
+data_path = '../data/Synthetic_data_FF.csv'
 
 # Load the data
 data = pd.read_csv(data_path)

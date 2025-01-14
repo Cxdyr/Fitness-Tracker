@@ -615,7 +615,6 @@ def generate_plan():
         # Check if a plan with the same name already exists for the user, if it does - do not make new plan
         existing_plan = Plan.query.filter_by(user_id=user_id, plan_name=plan_name).first()
         if existing_plan:
-            app.logger.warning(f"Duplicate plan detected for user {user_id} with name {plan_name}.")
             return jsonify({"error": f"A plan named '{plan_name}' already exists."}), 400
 
         # Predict lifts and reps using the model
@@ -639,7 +638,6 @@ def generate_plan():
                 lift = Lift.query.filter_by(name=lift_name).first() # finding lifts in database based on name
 
                 if not lift:
-                    app.logger.warning(f"Lift not found: {lift_name}")
                     continue
 
                 plan_lift = PlanLift( #Create plan lift with lift, plan_id, 
@@ -656,7 +654,6 @@ def generate_plan():
 
     except Exception as e:
         db.session.rollback()
-        app.logger.error(f"Error generating plan: {e}")
         return jsonify({"error": f"Server error: {e}"}), 500
 
 
