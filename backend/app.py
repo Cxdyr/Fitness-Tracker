@@ -458,10 +458,6 @@ def get_settings_info(user_id):
         return jsonify({"error": "User not found"}), 404
     
 
-
-
-
-
 # ----- PLAN CREATION AND VIEWING ENDPOINTS  --------
 
 # Create plan endpoint

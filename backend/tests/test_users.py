@@ -15,11 +15,11 @@ class TestUsersAPI(unittest.TestCase):
     def setUp(self):
         # Define the test user
         self.test_user = {
-            "username": "TestingUser",
+            "username": "TestingUsers",
             "password": "password_123",
             "first_name": "Test",
             "last_name": "User",
-            "email": "Testerz@tester.com",
+            "email": "Testerss@tester.com",
             "date_of_birth": "2003-01-01",
             "goal": "Lose weight gain muscle",
         }
@@ -66,7 +66,7 @@ class TestUsersAPI(unittest.TestCase):
         """Test user email change endpoint"""
 
         new_email_info = {
-            "user_id": 5, # change to match the test user in testing session
+            "user_id": 2, # change to match the test user in testing session
             "email": "tester_new@test.com"
         }
         success = 200 #Expected response
@@ -76,10 +76,30 @@ class TestUsersAPI(unittest.TestCase):
         print(f"Change email endpoint response status {response.status_code}")
         print(f"Change email endpoint response data: {response.json()}")
 
+    
+    def test_04_get_username(self):
+        """Test get name endpoint"""
+        user_id = 2
+        success = 200
+        response = requests.get(f"{BASE_URL}/get-name/{user_id}", headers=headers)
+        self.assertEqual(response.status_code, success)
+        print(f"Get name endpoint response status {response.status_code}")
+        print(f"Get name endpoint response data: {response.json()}")
 
-    def test_04_delete_user(self):
+
+    def test_05_get_id(self):
+        """Test get id endpoint"""
+        username = "TestingUsers"
+        success = 200
+        response = requests.get(f"{BASE_URL}/get-id/{username}", headers=headers)
+        self.assertEqual(response.status_code, success)
+        print(f"Get id endpoint response status {response.status_code}")
+        print(f"Get id endpoint response data: {response.json()}")
+
+
+    def test_06_delete_user(self):
         """Test delete user"""
-        user_id = 5 #change to match test user in testing session
+        user_id = 2 #change to match test user in testing session
         response = requests.delete(f"{BASE_URL}/users/delete/{user_id}", headers=headers)
         self.assertEqual(response.status_code, 200)
         print(f"Delete user response status: {response.status_code}")
