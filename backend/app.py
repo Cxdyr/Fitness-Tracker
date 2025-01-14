@@ -22,15 +22,6 @@ load_dotenv()
 def validate_api_key():
     """
     Middleware: Validates the API key in the 'X-API-KEY' request header from frontend or other call locations
-    ---
-    headers:
-      X-API-KEY:
-        description: API key required to access endpoints
-        required: true
-        type: string
-    responses:
-      403:
-        description: Invalid API key
     """
     api_key = request.headers.get('X-API-KEY') #From frontend to retrieve api key from headers
     if api_key != Config.API_KEY: #if api key is wrong, we cannot perform api requests
@@ -41,15 +32,8 @@ def validate_api_key():
 @app.route('/')
 def index():
     """
-    GET /
-    ---
-    summary: Health check for the backend
-    description: Returns backend is running.
-    responses:
-      200:
-        description: Backend is running
-        examples:
-          text: "Backend is running!"
+    Health check for the backend
+
     """
     return "Backend is running!"
 
@@ -62,28 +46,8 @@ def get_id(username):
     """
     GET /api/get-id/{username}
     ---
-    summary: Retrieve user ID by username
-    description: Retrieves the user ID that is associated with the provided username.
-    parameters:
-      - in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        description: The username of the user
-    responses:
-      200:
-        description: Successfully retrieved user ID
-        content:
-          application/json:
-            example: {"id": 12345}
-      404:
-        description: User or ID not found
-        content:
-          application/json:
-            examples:
-              user_not_found: {"error": "User not found"}
-              id_not_found: {"error": "ID not found"}
+    Retrieves the user ID that is associated with the provided username.
+
     """
     user = User.query.filter_by(username=username).first()
     if user and user.id:
@@ -100,28 +64,7 @@ def get_name(user_id):
     """
     GET /api/get-name/{user_id}
     ---
-    summary: Retrieve user's first name by user ID
-    description: Returns the first name of the user associated with the provided user ID.
-    parameters:
-      - in: path
-        name: user_id
-        required: true
-        schema:
-          type: integer
-        description: The unique ID of the user
-    responses:
-      200:
-        description: Successfully retrieved user's first name
-        content:
-          application/json:
-            example: {"firstname": "John"}
-      404:
-        description: User or first name not found
-        content:
-          application/json:
-            examples:
-              user_not_found: {"error": "User not found"}
-              first_name_not_found: {"error": "First name not found"}
+    Returns the first name of the user associated with the provided user ID.
     """
     user = User.query.filter_by(id=user_id).first()
     if user and user.first_name:
@@ -138,31 +81,7 @@ def delete_user(user_id):
     """
     DELETE /api/users/delete/{user_id}
     ---
-    summary: Delete a user by user ID
-    description: Deletes a user from the database based on their unique ID.
-    parameters:
-      - in: path
-        name: user_id
-        required: true
-        schema:
-          type: integer
-        description: The unique ID of the user to delete
-    responses:
-      200:
-        description: Successfully deleted user
-        content:
-          application/json:
-            example: {"message": "User john_doe has been deleted successfully"}
-      404:
-        description: User not found
-        content:
-          application/json:
-            example: {"error": "User not found"}
-      500:
-        description: Internal server error
-        content:
-          application/json:
-            example: {"error": "An error occurred: <error details>"}
+    Deletes a user from the database based on their unique ID.
     """
     try:
         user = db.session.get(User, user_id)
@@ -184,51 +103,7 @@ def change_email():
     """
     POST /api/change-email
     ---
-    summary: Update user's email
-    description: Changes a user's email after validating the input, ensuring the email does not already exist in database, then updating the user's record.
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              user_id:
-                type: integer
-                description: The ID of the user
-                example: 123
-              email:
-                type: string
-                description: The new email address
-                example: "new_email@example.com"
-    responses:
-      200:
-        description: Successfully updated email
-        content:
-          application/json:
-            example: {"message": "Successfully updated email"}
-      400:
-        description: Invalid input (missing email or bad format)
-        content:
-          application/json:
-            examples:
-              missing_email: {"error": "New email is required"}
-              invalid_format: {"error": "Email format is incorrect"}
-      404:
-        description: User not found
-        content:
-          application/json:
-            example: {"error": "User not found"}
-      409:
-        description: Email already exists
-        content:
-          application/json:
-            example: {"error": "User with existing email already exists, please try a different email"}
-      500:
-        description: Internal server error
-        content:
-          application/json:
-            example: {"error": "An error occurred: <error details>"}
+    Changes a user's email after validating the input, ensuring the email does not already exist in database, then updating the user's record.
     """
     try:
         data = request.get_json()
@@ -265,48 +140,7 @@ def get_tracked_dates_api():
     """
     GET /api/tracked-dates
     ---
-    summary: Retrieve user's tracked dates
-    description: Retrieves the dates a user has tracked performance for a specific year and month for calendar display
-    parameters:
-      - in: query
-        name: user_id
-        required: true
-        schema:
-          type: integer
-        description: The ID of the user
-        example: 123
-      - in: query
-        name: year
-        required: true
-        schema:
-          type: integer
-        description: The year to retrieve tracked dates for
-        example: 2025
-      - in: query
-        name: month
-        required: true
-        schema:
-          type: integer
-        description: The month to retrieve tracked dates for
-        example: 1
-    responses:
-      200:
-        description: Successfully retrieved tracked dates
-        content:
-          application/json:
-            example: {"tracked_dates": ["2025-01-01", "2025-01-05", "2025-01-15"]}
-      400:
-        description: Missing or invalid parameters
-        content:
-          application/json:
-            examples:
-              missing_user_id: {"error": "User ID is required"}
-              missing_year_month: {"error": "Year and Month are required"}
-      500:
-        description: Internal server error
-        content:
-          application/json:
-            example: {"error": "An error occurred: <error details>"}
+    Retrieves the dates a user has tracked performance for a specific year and month for calendar display
     """
     try: # Gets user id, year, and month info
         user_id = request.args.get('user_id', type=int)
