@@ -32,7 +32,8 @@ Create and Track your Lifts with Fitness Friend
 ---
 
 # Code Recap and Demonstration
-
+- Project demonstration video...
 [![Watch the video](https://img.youtube.com/vi/t-67vfBuXDM/0.jpg)](https://www.youtube.com/watch?v=t-67vfBuXDM&ab_channel=CodyRabie)
+- Code explanation video...
 
 [![Watch the video](https://img.youtube.com/vi/6XjA02x24Tc/0.jpg)](https://www.youtube.com/watch?v=6XjA02x24Tc&ab_channel=CodyRabie)
