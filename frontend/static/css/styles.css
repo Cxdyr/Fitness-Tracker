@@ -378,3 +378,15 @@ footer {
     margin-top: 20px;
 
 }
+
+/* Make the table responsive on small screens */
+table {
+    width: 100%;
+    table-layout: fixed; /* Ensures that columns are proportionately sized */
+}
+
+table th, table td {
+    word-wrap: break-word; /* Prevents content from overflowing */
+    overflow: hidden; /* Hides overflowing content */
+    text-overflow: ellipsis; /* Adds ellipsis when content overflows */
+}

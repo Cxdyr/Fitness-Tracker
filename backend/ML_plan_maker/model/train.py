@@ -20,7 +20,7 @@ y_lifts_encoded = label_encoder.fit_transform(y_lifts)
 # Combining lifts and reps 
 y = pd.DataFrame({'Lifts': y_lifts_encoded, 'Reps': y_reps})
 
-# Featurs must be numeric
+# Features must be numeric
 X = X.apply(pd.to_numeric, errors='coerce')
 
 # Combine X and y to drop rows with missing values consistently
